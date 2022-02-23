@@ -1,0 +1,28 @@
+{
+  "name": "@azure-tools/cadl-ts",
+  "version": "0.0.1",
+  "description": "An experimental CADL emitter for TypeScript",
+  "main": "dist/tsEmitter.js",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf ./dist ./cadl-output",
+    "build": "tsc -p .",
+    "build:cadl": "cadl compile cadl/helloWorld.cadl",
+    "test": "npm run clean && npm run build && npm run build:cadl"
+  },
+  "author": "Jeff Fisher <jeffish@microsoft.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@cadl-lang/rest": "^0.11.0",
+    "@typescript-eslint/eslint-plugin": "^5.12.1",
+    "@typescript-eslint/parser": "^5.12.1",
+    "eslint": "^8.9.0",
+    "prettier": "^2.5.1",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.5.5"
+  },
+  "dependencies": {
+    "@cadl-lang/compiler": "^0.28.0",
+    "tslib": "^2.3.1"
+  }
+}
