@@ -1,5 +1,5 @@
 import { Program, resolvePath, getServiceNamespaceString } from "@cadl-lang/compiler";
-import { createFile } from "./generators/sourceFile";
+import { createFile } from "./generators/sourceFile.js";
 
 export interface TSEmitterOptions {
   outputPath: string;

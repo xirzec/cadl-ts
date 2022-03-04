@@ -1,0 +1,22 @@
+{
+  "name": "@azure-tools/cadl-ts-sample",
+  "version": "0.0.1",
+  "description": "An example project that consumes the emitter",
+  "main": "dist/main.js",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf ./cadl-output",
+    "build": "cadl compile helloWorld.cadl",
+    "test": "npm run clean && npm run build"
+  },
+  "author": "Jeff Fisher <jeffish@microsoft.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@azure-tools/cadl-ts-emitter": "workspace:*",
+    "@cadl-lang/compiler": "^0.28.0",
+    "@cadl-lang/rest": "^0.11.0",
+    "eslint": "^8.9.0",
+    "prettier": "^2.5.1",
+    "rimraf": "^3.0.2"
+  }
+}

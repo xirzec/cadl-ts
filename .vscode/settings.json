@@ -1,3 +1,9 @@
 {
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "files.associations": {
+    "rush.json": "jsonc",
+    "common-versions.json": "jsonc",
+    "command-line.json": "jsonc",
+    "version-policies.json": "jsonc"
+  }
 }

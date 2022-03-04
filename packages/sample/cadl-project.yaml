@@ -1,0 +1,2 @@
+emitters:
+  "@azure-tools/cadl-ts-emitter": true
