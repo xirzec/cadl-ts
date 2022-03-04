@@ -1,20 +1,9 @@
-import { Program, resolvePath, getServiceNamespaceString, NoTarget } from "@cadl-lang/compiler";
+import { Program, resolvePath, getServiceNamespaceString } from "@cadl-lang/compiler";
 import { createFile } from "./generators/sourceFile.js";
-import { reportDiagnostic } from "./lib.js";
+import { debugLog } from "./log.js";
 
 export interface TSEmitterOptions {
   outputPath: string;
-}
-
-function debugLog(p: Program, msg: string | undefined) {
-  if (!msg) { 
-    return;
-  }
-  reportDiagnostic(p, {
-    code: "info",
-    format: { message: msg },
-    target: NoTarget,
-  });
 }
 
 export async function $onEmit(p: Program): Promise<void> {
