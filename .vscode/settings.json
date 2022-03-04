@@ -9,5 +9,6 @@
   "prettier.prettierPath": "./packages/emitter/node_modules/prettier",
   "eslint.run": "onSave",
   "eslint.nodePath": "./packages/eslint-config/node_modules/eslint",
-  "eslint.useESLintClass": true
+  "eslint.useESLintClass": true,
+  "cadl.cadl-server.path": "./packages/emitter/node_modules/@cadl-lang/compiler"
 }
