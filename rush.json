@@ -210,6 +210,11 @@
    */
   "projects": [
     {
+      "packageName": "@azure-tools/cadl-ts-client",
+      "projectFolder": "packages/client",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@azure-tools/cadl-ts-emitter",
       "projectFolder": "packages/emitter",
       "shouldPublish": true
