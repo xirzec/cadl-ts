@@ -1,4 +1,8 @@
 {
-  "references": [{ "path": "packages/emitter/tsconfig.json" }],
+  "references": [
+    { "path": "packages/emitter/tsconfig.json" },
+    { "path": "packages/client/tsconfig.json" }
+    { "path": "packages/lib/tsconfig.json" }
+  ],
   "files": []
 }

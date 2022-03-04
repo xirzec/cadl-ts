@@ -220,8 +220,23 @@
       "shouldPublish": true
     },
     {
+      "packageName": "@azure-tools/cadl-ts",
+      "projectFolder": "packages/lib",
+      "shouldPublish": true
+    },
+    {
       "packageName": "@azure-tools/cadl-ts-sample",
       "projectFolder": "packages/sample",
+      "shouldPublish": false
+    },
+    {
+      "packageName": "@azure-tools/cadl-ts-sample-client",
+      "projectFolder": "packages/sample-client",
+      "shouldPublish": false
+    },
+    {
+      "packageName": "@azure-tools/cadl-ts-sample-consumer",
+      "projectFolder": "packages/sample-consumer",
       "shouldPublish": false
     },
     {

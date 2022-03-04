@@ -61,6 +61,29 @@ importers:
       eslint: 8.10.0
       typescript: 4.6.2
 
+  ../../packages/lib:
+    specifiers:
+      '@azure-tools/eslint-config-cadl-ts': workspace:*
+      '@cadl-lang/compiler': ^0.28.0
+      '@typescript-eslint/eslint-plugin': ^5.12.1
+      '@typescript-eslint/parser': ^5.12.1
+      eslint: ^8.9.0
+      prettier: ^2.5.1
+      rimraf: ^3.0.2
+      tslib: ^2.3.1
+      typescript: ^4.5.5
+    dependencies:
+      '@cadl-lang/compiler': 0.28.0
+      tslib: 2.3.1
+    devDependencies:
+      '@azure-tools/eslint-config-cadl-ts': link:../eslint-config
+      '@typescript-eslint/eslint-plugin': 5.13.0_33fffc354ccfa91fbe7d1677b9395a0a
+      '@typescript-eslint/parser': 5.13.0_eslint@8.10.0+typescript@4.6.2
+      eslint: 8.10.0
+      prettier: 2.5.1
+      rimraf: 3.0.2
+      typescript: 4.6.2
+
   ../../packages/sample:
     specifiers:
       '@azure-tools/cadl-ts-emitter': workspace:*
@@ -72,6 +95,48 @@ importers:
       '@cadl-lang/compiler': 0.28.0
       '@cadl-lang/rest': 0.11.0_@cadl-lang+compiler@0.28.0
       rimraf: 3.0.2
+
+  ../../packages/sample-client:
+    specifiers:
+      '@azure-tools/eslint-config-cadl-ts': workspace:*
+      '@typescript-eslint/eslint-plugin': ^5.12.1
+      '@typescript-eslint/parser': ^5.12.1
+      eslint: ^8.9.0
+      prettier: ^2.5.1
+      rimraf: ^3.0.2
+      tslib: ^2.3.1
+      typescript: ^4.5.5
+    dependencies:
+      tslib: 2.3.1
+    devDependencies:
+      '@azure-tools/eslint-config-cadl-ts': link:../eslint-config
+      '@typescript-eslint/eslint-plugin': 5.13.0_33fffc354ccfa91fbe7d1677b9395a0a
+      '@typescript-eslint/parser': 5.13.0_eslint@8.10.0+typescript@4.6.2
+      eslint: 8.10.0
+      prettier: 2.5.1
+      rimraf: 3.0.2
+      typescript: 4.6.2
+
+  ../../packages/sample-consumer:
+    specifiers:
+      '@azure-tools/eslint-config-cadl-ts': workspace:*
+      '@typescript-eslint/eslint-plugin': ^5.12.1
+      '@typescript-eslint/parser': ^5.12.1
+      eslint: ^8.9.0
+      prettier: ^2.5.1
+      rimraf: ^3.0.2
+      tslib: ^2.3.1
+      typescript: ^4.5.5
+    dependencies:
+      tslib: 2.3.1
+    devDependencies:
+      '@azure-tools/eslint-config-cadl-ts': link:../eslint-config
+      '@typescript-eslint/eslint-plugin': 5.13.0_33fffc354ccfa91fbe7d1677b9395a0a
+      '@typescript-eslint/parser': 5.13.0_eslint@8.10.0+typescript@4.6.2
+      eslint: 8.10.0
+      prettier: 2.5.1
+      rimraf: 3.0.2
+      typescript: 4.6.2
 
 packages:
 

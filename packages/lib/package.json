@@ -1,0 +1,28 @@
+{
+  "name": "@azure-tools/cadl-ts",
+  "version": "0.0.1",
+  "description": "CADL Langauge Library for TS",
+  "main": "dist/src/index.js",
+  "cadlMain": "dist/src/index.js",
+  "type": "module",
+  "scripts": {
+    "clean": "rimraf ./dist ./cadl-output",
+    "build": "tsc -p .",
+    "test": "npm run clean && npm run build"
+  },
+  "author": "Jeff Fisher <jeffish@microsoft.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "@azure-tools/eslint-config-cadl-ts": "workspace:*",
+    "@typescript-eslint/eslint-plugin": "^5.12.1",
+    "@typescript-eslint/parser": "^5.12.1",
+    "eslint": "^8.9.0",
+    "prettier": "^2.5.1",
+    "rimraf": "^3.0.2",
+    "typescript": "^4.5.5"
+  },
+  "dependencies": {
+    "@cadl-lang/compiler": "^0.28.0",
+    "tslib": "^2.3.1"
+  }
+}
