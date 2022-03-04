@@ -1,6 +1,8 @@
 import { Program, resolvePath, getServiceNamespaceString } from "@cadl-lang/compiler";
-import { createFile } from "./generators/sourceFile.js";
 import { debugLog } from "./log.js";
+import { render } from "./render.js";
+import { Package } from "./model.js";
+import { emit } from "./printer.js";
 
 export interface TSEmitterOptions {
   outputPath: string;
@@ -14,9 +16,15 @@ export async function $onEmit(p: Program): Promise<void> {
   const ns = getServiceNamespaceString(p);
   debugLog(p, ns);
   debugLog(p, options.outputPath);
-  
+
   if (!p.compilerOptions.noEmit) {
-    const outFile = resolvePath(options.outputPath, "client.ts");
-    await p.host.writeFile(outFile, createFile("//hello world!"));
+    const output = render(createExamplePackage());
+    await emit(p.host, options.outputPath, output);
   }
+}
+
+function createExamplePackage(): Package {
+  return {
+    clients: [{ name: "ExampleClient", operations: [] }],
+  };
 }
