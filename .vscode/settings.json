@@ -10,5 +10,7 @@
   "eslint.run": "onSave",
   "eslint.nodePath": "./packages/eslint-config/node_modules/eslint",
   "eslint.useESLintClass": true,
-  "cadl.cadl-server.path": "./packages/emitter/node_modules/@cadl-lang/compiler"
+  "cadl.cadl-server.path": "${workspaceRoot}/packages/emitter/node_modules/@cadl-lang/compiler",
+  "typescript.tsdk": "./packages/emitter/node_modules/typescript/lib",
+  "typescript.enablePromptUseWorkspaceTsdk": true
 }

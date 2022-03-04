@@ -1,8 +1,15 @@
-import { createCadlLibrary } from "@cadl-lang/compiler";
+import { createCadlLibrary,paramMessage } from "@cadl-lang/compiler";
 
 export const libDef = {
   name: "@azure-tools/cadl-ts-emitter",
-  diagnostics: {},
+  diagnostics: {
+    "info": {
+      severity: "warning",
+      messages: {
+        default: paramMessage`INFO: ${"message"}`,
+      },
+    },
+  },
   emitter: {
     names: ["ts"],
   },

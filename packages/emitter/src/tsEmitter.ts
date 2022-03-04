@@ -1,8 +1,20 @@
-import { Program, resolvePath, getServiceNamespaceString } from "@cadl-lang/compiler";
+import { Program, resolvePath, getServiceNamespaceString, NoTarget } from "@cadl-lang/compiler";
 import { createFile } from "./generators/sourceFile.js";
+import { reportDiagnostic } from "./lib.js";
 
 export interface TSEmitterOptions {
   outputPath: string;
+}
+
+function debugLog(p: Program, msg: string | undefined) {
+  if (!msg) { 
+    return;
+  }
+  reportDiagnostic(p, {
+    code: "info",
+    format: { message: msg },
+    target: NoTarget,
+  });
 }
 
 export async function $onEmit(p: Program): Promise<void> {
@@ -11,8 +23,9 @@ export async function $onEmit(p: Program): Promise<void> {
   };
 
   const ns = getServiceNamespaceString(p);
-  console.log(ns);
-  console.log(options.outputPath);
+  debugLog(p, ns);
+  debugLog(p, options.outputPath);
+  
   if (!p.compilerOptions.noEmit) {
     const outFile = resolvePath(options.outputPath, "client.ts");
     await p.host.writeFile(outFile, createFile("//hello world!"));
