@@ -218,6 +218,11 @@
       "packageName": "@azure-tools/cadl-ts-sample",
       "projectFolder": "packages/sample",
       "shouldPublish": false
+    },
+    {
+      "packageName": "@azure-tools/eslint-config-cadl-ts",
+      "projectFolder": "packages/eslint-config",
+      "shouldPublish": false
     }
   ]
 }

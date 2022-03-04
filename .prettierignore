@@ -1,0 +1,5 @@
+**/dist/
+common/temp/
+common/scripts/
+common/changes/
+common/config/rush/pnpm-lock.yaml

@@ -15,8 +15,6 @@
     "@azure-tools/cadl-ts-emitter": "workspace:*",
     "@cadl-lang/compiler": "^0.28.0",
     "@cadl-lang/rest": "^0.11.0",
-    "eslint": "^8.9.0",
-    "prettier": "^2.5.1",
     "rimraf": "^3.0.2"
   }
 }

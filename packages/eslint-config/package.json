@@ -1,0 +1,17 @@
+{
+  "name": "@azure-tools/eslint-config-cadl-ts",
+  "version": "0.0.1",
+  "description": "Consolidate eslint settings",
+  "main": "index.js",
+  "scripts": {
+    "build": "echo 'Have a nice day!'"
+  },
+  "author": "Jeff Fisher <jeffish@microsoft.com>",
+  "license": "MIT",
+  "dependencies": {
+    "@typescript-eslint/eslint-plugin": "^5.12.1",
+    "@typescript-eslint/parser": "^5.12.1",
+    "eslint": "^8.9.0",
+    "typescript": "^4.5.5"
+  }
+}
