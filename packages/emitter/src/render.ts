@@ -15,7 +15,7 @@ export function render(sdkPackage: Model.Package): Output {
   for (const client of sdkPackage.clients) {
     files.push({
       path: [`${client.name}.ts`],
-      contents: createClient({ clientName: client.name }),
+      contents: createClient({ client }),
     });
   }
   return {

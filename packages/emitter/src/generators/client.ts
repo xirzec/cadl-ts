@@ -1,10 +1,11 @@
 import { createSourceFile } from "./sourceFile.js";
+import { Client } from "../model.js";
 export interface CreateClientOptions {
-  clientName: string;
+  client: Client;
 }
 export function createClient(options: CreateClientOptions): string {
-  const { clientName } = options;
-  return createSourceFile(`export class ${clientName} {
+  const { name } = options.client;
+  return createSourceFile(`export class ${name} {
   constructor() {
 
   }
