@@ -1,29 +1,54 @@
-export interface Property {
-  path: string[];
-  serializedName: string;
+export type ParameterLocation = "body" | "header" | "query" | "path";
+export type ResponseLocation = "body" | "header";
+
+export interface SimpleType {
+  kind: "string" | "number" | "boolean";
 }
 
-export interface Request {
-  route: string;
-  verb?: "GET" | "POST" | "HEAD" | "PUT";
-  body?: Property[];
-  queryParameters?: Property[];
-  headers?: Property[];
-  urlParameters?: Property[];
+export interface ModelType {
+  kind: "model";
+  discriminator: string | undefined;
+  properties: Map<string, ModelProperty>;
 }
+
+export interface ArrayType {
+  kind: "array";
+  elementType: RestType;
+}
+
+export interface ModelProperty {
+  name: string;
+  optional: boolean;
+  location: ResponseLocation | undefined;
+  type: RestType;
+}
+
+export type RestType = ArrayType | ModelType | SimpleType;
+
+// date, stream?, bytes?
+
+export type HttpVerb = "GET" | "PUT" | "POST" | "DELETE" | "PATCH" | "HEAD" | "OPTIONS" | "TRACE";
 
 export interface Response {
-  headers?: Property[];
-  body?: Property[];
+  discriminator: string | undefined;
+  properties: Map<string, ModelProperty>;
+  isError: boolean;
+  statusCodes: string[];
+}
+
+export interface Parameter {
+  name: string;
+  location: ParameterLocation;
+  type: RestType;
+  optional: boolean;
 }
 
 export interface Operation {
-  methodName?: string;
-  request: Request;
-  response: {
-    [code: number]: Response;
-    error: Response;
-  };
+  name: string;
+  path: string;
+  parameters: Parameter[];
+  responses: Response[];
+  verb: HttpVerb;
 }
 
 export interface Client {

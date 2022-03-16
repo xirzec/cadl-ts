@@ -30,6 +30,7 @@ importers:
     specifiers:
       '@azure-tools/eslint-config-cadl-ts': workspace:*
       '@cadl-lang/compiler': ^0.28.0
+      '@cadl-lang/rest': ^0.11.0
       '@typescript-eslint/eslint-plugin': ^5.12.1
       '@typescript-eslint/parser': ^5.12.1
       eslint: ^8.9.0
@@ -39,6 +40,7 @@ importers:
       typescript: ^4.5.5
     dependencies:
       '@cadl-lang/compiler': 0.28.0
+      '@cadl-lang/rest': 0.11.0_@cadl-lang+compiler@0.28.0
       tslib: 2.3.1
     devDependencies:
       '@azure-tools/eslint-config-cadl-ts': link:../eslint-config
@@ -166,7 +168,6 @@ packages:
       '@cadl-lang/compiler': ~0.28.0
     dependencies:
       '@cadl-lang/compiler': 0.28.0
-    dev: true
 
   /@eslint/eslintrc/1.2.0:
     resolution: {integrity: sha512-igm9SjJHNEJRiUnecP/1R5T3wKLEJ7pL6e2P+GUSfCd0dGjPYYZve08uzw8L2J8foVHFz+NGu12JxRcU2gGo6w==}
