@@ -81,10 +81,10 @@ function getParameters(p: Program, params: HttpOperationParameters): Parameter[]
   const result: Parameter[] = [];
 
   if (params.body) {
-    const type = createRestType(p, params.body);
+    const type = createRestType(p, params.body.type);
     if (type) {
       result.push({
-        name: "body",
+        name: params.body.name,
         location: "body",
         optional: params.body.optional,
         type,
@@ -93,7 +93,7 @@ function getParameters(p: Program, params: HttpOperationParameters): Parameter[]
   }
 
   for (const param of params.parameters) {
-    const type = createRestType(p, param.param);
+    const type = createRestType(p, param.param.type);
     if (type) {
       result.push({
         location: param.type,
