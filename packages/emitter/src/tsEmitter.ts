@@ -252,10 +252,20 @@ function getDiscriminator(p: Program, model: ModelType): string | undefined {
 function createResponseFromModel(p: Program, model: ModelType): Response {
   const statusCodes = [];
   const properties = new Map<string, ModelProperty>();
+
   for (const prop of getAllModelProperties(model)) {
     if (isStatusCode(p, prop)) {
       const codes: string[] = getStatusCodes(p, prop);
       statusCodes.push(...codes);
+    } else if (isBody(p, prop) && prop.type.kind === "Model") {
+      // flatten body model onto outer model
+      for (const bodyProp of getAllModelProperties(prop.type)) {
+        const type = createModelProperty(p, bodyProp);
+        if (type) {
+          type.location = "body";
+          properties.set(bodyProp.name, type);
+        }
+      }
     } else {
       const type = createModelProperty(p, prop);
       if (type) {
