@@ -8,6 +8,7 @@ import {
   RestType,
   ArrayType,
   ModelType,
+  UnionType,
 } from "../model.js";
 export interface CreateClientOptions {
   client: Client;
@@ -37,7 +38,7 @@ function createOperation(operation: Operation): string {
   const params = createOperationParams(operation);
   const returnType = createReturnType(operation.responses);
   return `public ${operation.name}(${params}): ${returnType} {
-    // TODO: implement me
+    throw new Error("Not yet implemented");
   }`;
 }
 
@@ -73,13 +74,16 @@ function modelPropertyToTypeScript(property: ModelProperty): string {
 function restTypeToTypeScript(type: RestType): string {
   switch (type.kind) {
     case "string":
+      return type.constant === undefined ? "string" : `"${type.constant}"`;
     case "boolean":
     case "number":
-      return type.kind;
+      return String(type.constant ?? type.kind);
     case "array":
       return arrayTypeToTypeScript(type);
     case "model":
       return modelTypeToTypeScript(type);
+    case "union":
+      return unionTypeToTypeScript(type);
     default:
       throw new Error(`Unknown RestType ${type}`);
   }
@@ -91,6 +95,10 @@ function arrayTypeToTypeScript(type: ArrayType): string {
     return `Array<${restTypeToTypeScript(type.elementType)}>`;
   }
   return `${restTypeToTypeScript(type.elementType)}[]`;
+}
+
+function unionTypeToTypeScript(type: UnionType): string {
+  return type.options.map(restTypeToTypeScript).join(" | ");
 }
 
 function createOperationParams(operation: Operation): string {

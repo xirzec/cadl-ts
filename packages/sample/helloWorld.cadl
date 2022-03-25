@@ -7,8 +7,7 @@ namespace Demo.HelloWorld;
 using Cadl.Http;
 
 model SubSubResult {
-  // temperature: "hot" | "cold";
-  temperature: string;
+  temperature: "hot" | "cold";
 }
 
 model SubResult {

@@ -162,7 +162,7 @@ function createRestType(p: Program, type: Type): RestType | undefined {
             kind: "string",
           };
         default:
-          error(p, `Can't make RestType out of ${type.kind}`, type);
+          error(p, `Can't make RestType out of intrinsic ${type.kind}`, type);
           return undefined;
       }
     }
@@ -183,14 +183,31 @@ function createRestType(p: Program, type: Type): RestType | undefined {
   } else if (type.kind === "Boolean") {
     return {
       kind: "boolean",
+      constant: type.value,
     };
   } else if (type.kind === "Number") {
     return {
       kind: "number",
+      constant: type.value,
     };
   } else if (type.kind === "String") {
     return {
       kind: "string",
+      constant: type.value,
+    };
+  } else if (type.kind === "Union") {
+    const options: RestType[] = [];
+
+    for (const option of type.options) {
+      const optionType = createRestType(p, option);
+      if (optionType) {
+        options.push(optionType);
+      }
+    }
+
+    return {
+      kind: "union",
+      options,
     };
   } else {
     error(p, `Can't make RestType out of ${type.kind}`, type);

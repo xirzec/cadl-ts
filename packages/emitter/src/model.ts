@@ -1,8 +1,21 @@
 export type ParameterLocation = "body" | "header" | "query" | "path";
 export type ResponseLocation = "body" | "header";
 
-export interface SimpleType {
-  kind: "string" | "number" | "boolean";
+export type SimpleType = StringType | NumberType | BooleanType;
+
+export interface StringType {
+  kind: "string";
+  constant?: string;
+}
+
+export interface NumberType {
+  kind: "number";
+  constant?: number;
+}
+
+export interface BooleanType {
+  kind: "boolean";
+  constant?: boolean;
 }
 
 export interface ModelType {
@@ -10,6 +23,11 @@ export interface ModelType {
   name: string;
   discriminator: string | undefined;
   properties: Map<string, ModelProperty>;
+}
+
+export interface UnionType {
+  kind: "union";
+  options: RestType[];
 }
 
 export interface ArrayType {
@@ -24,7 +42,7 @@ export interface ModelProperty {
   type: RestType;
 }
 
-export type RestType = ArrayType | ModelType | SimpleType;
+export type RestType = ArrayType | ModelType | SimpleType | UnionType;
 
 // date, stream?, bytes?
 
