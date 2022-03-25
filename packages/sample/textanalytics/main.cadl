@@ -1,0 +1,11 @@
+import "@cadl-lang/rest";
+
+import "./common.cadl";
+import "./entities.cadl";
+import "./entitylinking.cadl";
+import "./health.cadl";
+import "./languages.cadl";
+import "./pii.cadl";
+import "./keyphrases.cadl";
+import "./sentiment.cadl";
+import "./analyze.cadl";
