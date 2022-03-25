@@ -6,10 +6,39 @@ namespace Demo.HelloWorld;
 
 using Cadl.Http;
 
+model SubSubResult {
+  // temperature: "hot" | "cold";
+  temperature: string;
+}
+
+model SubResult {
+  color: string;
+  metrics: SubSubResult;
+}
+
+
+model BonusData {
+  @header
+  "something-rad": string;
+}
+
+model Result {
+  id: string;
+  coolFactor: int32;
+  deleted?: boolean;
+  subresult: SubResult[];
+  favorites: string[];
+}
+
+model HiOptions {
+  name: string;
+  goFast?: boolean;
+}
+
 @doc("Hello world service")
 @route("/hello")
 namespace Hello {
   @doc("Returns 'hi'")
   @get
-  op sayHi(): OkResponse<"hi">;
+  op sayHi(options: HiOptions, @query bar?:string = "foo", @header "X-MS-Debug-Name"?: string): OkResponse<Result> & BonusData;
 }

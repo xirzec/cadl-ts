@@ -5,6 +5,7 @@ import {
   ModelType,
   isErrorModel,
   ModelTypeProperty,
+  getIntrinsicModelName,
 } from "@cadl-lang/compiler";
 import {
   getAllRoutes,
@@ -142,7 +143,31 @@ function createRestType(p: Program, type: Type): RestType | undefined {
       return undefined;
     }
   } else if (type.kind === "Model") {
+    const name = getIntrinsicModelName(p, type);
+    if (name) {
+      switch (name) {
+        case "boolean":
+          return {
+            kind: "boolean",
+          };
+        // TODO: handle all number types
+        case "int8":
+        case "int16":
+        case "int32":
+          return {
+            kind: "number",
+          };
+        case "string":
+          return {
+            kind: "string",
+          };
+        default:
+          error(p, `Can't make RestType out of ${type.kind}`, type);
+          return undefined;
+      }
+    }
     const properties = new Map<string, ModelProperty>();
+    // TODO: handle inheritance?
     for (const prop of getAllModelProperties(type)) {
       const propertyType = createModelProperty(p, prop);
       if (propertyType) {
@@ -151,6 +176,7 @@ function createRestType(p: Program, type: Type): RestType | undefined {
     }
     return {
       kind: "model",
+      name: type.name,
       properties,
       discriminator: getDiscriminator(p, type),
     };
@@ -222,6 +248,7 @@ function createResponseFromModel(p: Program, model: ModelType): Response {
   }
 
   return {
+    name: model.name,
     properties,
     isError: isErrorModel(p, model),
     statusCodes,

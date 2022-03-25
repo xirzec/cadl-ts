@@ -7,6 +7,7 @@ export interface SimpleType {
 
 export interface ModelType {
   kind: "model";
+  name: string;
   discriminator: string | undefined;
   properties: Map<string, ModelProperty>;
 }
@@ -30,6 +31,7 @@ export type RestType = ArrayType | ModelType | SimpleType;
 export type HttpVerb = "GET" | "PUT" | "POST" | "DELETE" | "PATCH" | "HEAD" | "OPTIONS" | "TRACE";
 
 export interface Response {
+  name: string;
   discriminator: string | undefined;
   properties: Map<string, ModelProperty>;
   isError: boolean;
