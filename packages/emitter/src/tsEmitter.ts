@@ -26,6 +26,7 @@ import {
   Response,
   ResponseLocation,
   RestType,
+  ModelType as EmitterModelType,
 } from "./model.js";
 import { emit } from "./printer.js";
 import RestHttpVerb = RestHttp.HttpVerb;
@@ -35,21 +36,33 @@ export interface TSEmitterOptions {
   outputPath: string;
 }
 
-export async function $onEmit(p: Program): Promise<void> {
+interface Context {
+  program: Program;
+  responseCache: WeakMap<ModelType, Response>;
+  modelCache: WeakMap<ModelType, EmitterModelType>;
+}
+
+export async function $onEmit(program: Program): Promise<void> {
   const options: TSEmitterOptions = {
-    outputPath: p.compilerOptions.outputPath || resolvePath("./ts/"),
+    outputPath: program.compilerOptions.outputPath || resolvePath("./ts/"),
   };
 
-  const sdkPackage = createPackage(p);
+  const context: Context = {
+    program,
+    responseCache: new WeakMap(),
+    modelCache: new WeakMap(),
+  };
 
-  if (!p.compilerOptions.noEmit) {
+  const sdkPackage = createPackage(context);
+
+  if (!program.compilerOptions.noEmit) {
     const output = render(sdkPackage);
-    await emit(p.host, options.outputPath, output);
+    await emit(program.host, options.outputPath, output);
   }
 }
 
-function createPackage(p: Program): Package {
-  const routes = getAllRoutes(p);
+function createPackage(context: Context): Package {
+  const routes = getAllRoutes(context.program);
   const clients = new Map<string, Client>();
   for (const route of routes) {
     const name = route.groupName;
@@ -61,28 +74,28 @@ function createPackage(p: Program): Package {
       };
       clients.set(client.name, client);
     }
-    client.operations.push(createOperationFromRoute(p, route));
+    client.operations.push(createOperationFromRoute(context, route));
   }
   return {
     clients: Array.from(clients.values()),
   };
 }
 
-function createOperationFromRoute(p: Program, route: OperationDetails): Operation {
+function createOperationFromRoute(context: Context, route: OperationDetails): Operation {
   return {
     name: route.operation.name,
-    parameters: getParameters(p, route.parameters),
-    responses: getResponses(p, route.operation.returnType),
+    parameters: getParameters(context, route.parameters),
+    responses: getResponses(context, route.operation.returnType),
     path: route.path,
     verb: restVerbToOperationVerb(route.verb),
   };
 }
 
-function getParameters(p: Program, params: HttpOperationParameters): Parameter[] {
+function getParameters(context: Context, params: HttpOperationParameters): Parameter[] {
   const result: Parameter[] = [];
 
   if (params.body) {
-    const type = createRestType(p, params.body.type);
+    const type = createRestType(context, params.body.type);
     if (type) {
       result.push({
         name: params.body.name,
@@ -94,7 +107,7 @@ function getParameters(p: Program, params: HttpOperationParameters): Parameter[]
   }
 
   for (const param of params.parameters) {
-    const type = createRestType(p, param.param.type);
+    const type = createRestType(context, param.param.type);
     if (type) {
       result.push({
         location: param.type,
@@ -108,27 +121,27 @@ function getParameters(p: Program, params: HttpOperationParameters): Parameter[]
   return result;
 }
 
-function getResponses(p: Program, responseType: Type): Response[] {
+function getResponses(context: Context, responseType: Type): Response[] {
   const responses: Response[] = [];
   // gotta fish out all the status codes and the right shape
   // as well as maybe inferring it
   if (responseType.kind === "Union") {
     for (const option of responseType.options) {
       // recurse
-      const result = getResponses(p, option);
+      const result = getResponses(context, option);
       responses.push(...result);
     }
   } else if (responseType.kind === "Model") {
-    responses.push(createResponseFromModel(p, responseType));
+    responses.push(createResponseFromModel(context, responseType));
   } else {
-    warn(p, `Unhandled responseType ${responseType.kind}`, responseType);
+    warn(context.program, `Unhandled responseType ${responseType.kind}`, responseType);
   }
   return responses;
 }
 
-function createRestType(p: Program, type: Type): RestType | undefined {
+function createRestType(context: Context, type: Type): RestType | undefined {
   if (type.kind === "Array") {
-    const elementType = createRestType(p, type.elementType);
+    const elementType = createRestType(context, type.elementType);
     if (elementType) {
       return {
         kind: "array",
@@ -136,14 +149,14 @@ function createRestType(p: Program, type: Type): RestType | undefined {
       };
     } else {
       error(
-        p,
+        context.program,
         `Can't make RestType out of array element type: ${type.elementType.kind}`,
         type.elementType
       );
       return undefined;
     }
   } else if (type.kind === "Model") {
-    const name = getIntrinsicModelName(p, type);
+    const name = getIntrinsicModelName(context.program, type);
     if (name) {
       switch (name) {
         case "boolean":
@@ -154,6 +167,14 @@ function createRestType(p: Program, type: Type): RestType | undefined {
         case "int8":
         case "int16":
         case "int32":
+        case "int64":
+        case "float32":
+        case "float64":
+        case "safeint":
+        case "uint8":
+        case "uint16":
+        case "uint32":
+        case "uint64":
           return {
             kind: "number",
           };
@@ -161,25 +182,33 @@ function createRestType(p: Program, type: Type): RestType | undefined {
           return {
             kind: "string",
           };
+        case "Map":
+          return createMapType(context, type);
         default:
-          error(p, `Can't make RestType out of intrinsic ${type.kind}`, type);
+          error(context.program, `Can't make RestType out of intrinsic ${type.name}`, type);
           return undefined;
       }
     }
+    const cachedModel = context.modelCache.get(type);
+    if (cachedModel) {
+      return cachedModel;
+    }
     const properties = new Map<string, ModelProperty>();
+    const model: EmitterModelType = {
+      kind: "model",
+      name: type.name,
+      properties,
+      discriminator: getDiscriminator(context, type),
+    };
+    context.modelCache.set(type, model);
     // TODO: handle inheritance?
     for (const prop of getAllModelProperties(type)) {
-      const propertyType = createModelProperty(p, prop);
+      const propertyType = createModelProperty(context, prop);
       if (propertyType) {
         properties.set(prop.name, propertyType);
       }
     }
-    return {
-      kind: "model",
-      name: type.name,
-      properties,
-      discriminator: getDiscriminator(p, type),
-    };
+    return model;
   } else if (type.kind === "Boolean") {
     return {
       kind: "boolean",
@@ -199,7 +228,7 @@ function createRestType(p: Program, type: Type): RestType | undefined {
     const options: RestType[] = [];
 
     for (const option of type.options) {
-      const optionType = createRestType(p, option);
+      const optionType = createRestType(context, option);
       if (optionType) {
         options.push(optionType);
       }
@@ -210,20 +239,34 @@ function createRestType(p: Program, type: Type): RestType | undefined {
       options,
     };
   } else {
-    error(p, `Can't make RestType out of ${type.kind}`, type);
+    error(context.program, `Can't make RestType out of ${type.kind}`, type);
     return undefined;
   }
 }
 
-function createModelProperty(p: Program, prop: ModelTypeProperty): ModelProperty | undefined {
+function createMapType(context: Context, type: ModelType): RestType | undefined {
+  const valueProp = type.properties.get("v");
+  if (valueProp) {
+    const valueType = createRestType(context, valueProp.type);
+    if (valueType) {
+      return {
+        kind: "map",
+        valueType,
+      };
+    }
+  }
+  return undefined;
+}
+
+function createModelProperty(context: Context, prop: ModelTypeProperty): ModelProperty | undefined {
   let location: ResponseLocation | undefined;
-  if (isHeader(p, prop)) {
+  if (isHeader(context.program, prop)) {
     location = "header";
-  } else if (isBody(p, prop)) {
+  } else if (isBody(context.program, prop)) {
     location = "body";
   }
 
-  const type = createRestType(p, prop.type);
+  const type = createRestType(context, prop.type);
 
   if (type) {
     return {
@@ -244,43 +287,54 @@ function* getAllModelProperties(model: ModelType): IterableIterator<ModelTypePro
   yield* model.properties.values();
 }
 
-function getDiscriminator(p: Program, model: ModelType): string | undefined {
-  const discriminator: { propertyName: string } | undefined = getRestDiscriminator(p, model);
+function getDiscriminator(context: Context, model: ModelType): string | undefined {
+  const discriminator: { propertyName: string } | undefined = getRestDiscriminator(
+    context.program,
+    model
+  );
   return discriminator?.propertyName;
 }
 
-function createResponseFromModel(p: Program, model: ModelType): Response {
-  const statusCodes = [];
+function createResponseFromModel(context: Context, model: ModelType): Response {
+  const cachedResponse = context.responseCache.get(model);
+  if (cachedResponse) {
+    return cachedResponse;
+  }
+
+  const statusCodes: string[] = [];
   const properties = new Map<string, ModelProperty>();
+  const response: Response = {
+    name: model.name,
+    properties,
+    isError: isErrorModel(context.program, model),
+    statusCodes,
+    discriminator: getDiscriminator(context, model),
+  };
+
+  context.responseCache.set(model, response);
 
   for (const prop of getAllModelProperties(model)) {
-    if (isStatusCode(p, prop)) {
-      const codes: string[] = getStatusCodes(p, prop);
+    if (isStatusCode(context.program, prop)) {
+      const codes: string[] = getStatusCodes(context.program, prop);
       statusCodes.push(...codes);
-    } else if (isBody(p, prop) && prop.type.kind === "Model") {
+    } else if (isBody(context.program, prop) && prop.type.kind === "Model") {
       // flatten body model onto outer model
       for (const bodyProp of getAllModelProperties(prop.type)) {
-        const type = createModelProperty(p, bodyProp);
+        const type = createModelProperty(context, bodyProp);
         if (type) {
           type.location = "body";
           properties.set(bodyProp.name, type);
         }
       }
     } else {
-      const type = createModelProperty(p, prop);
+      const type = createModelProperty(context, prop);
       if (type) {
         properties.set(prop.name, type);
       }
     }
   }
 
-  return {
-    name: model.name,
-    properties,
-    isError: isErrorModel(p, model),
-    statusCodes,
-    discriminator: getDiscriminator(p, model),
-  };
+  return response;
 }
 
 function restVerbToOperationVerb(verb: RestHttpVerb): HttpVerb {

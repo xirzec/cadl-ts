@@ -3,6 +3,11 @@ export type ResponseLocation = "body" | "header";
 
 export type SimpleType = StringType | NumberType | BooleanType;
 
+export interface MapType {
+  kind: "map";
+  valueType: RestType;
+}
+
 export interface StringType {
   kind: "string";
   constant?: string;
@@ -42,7 +47,7 @@ export interface ModelProperty {
   type: RestType;
 }
 
-export type RestType = ArrayType | ModelType | SimpleType | UnionType;
+export type RestType = ArrayType | ModelType | SimpleType | UnionType | MapType;
 
 // date, stream?, bytes?
 

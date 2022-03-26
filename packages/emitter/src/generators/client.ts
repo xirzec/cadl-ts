@@ -9,10 +9,22 @@ import {
   ArrayType,
   ModelType,
   UnionType,
+  MapType,
 } from "../model.js";
 export interface CreateClientOptions {
   client: Client;
 }
+
+interface CachedInterface {
+  name: string;
+  generatedText: string;
+}
+
+interface ClientContext {
+  interfaceCache: Map<ModelType, CachedInterface>;
+  responseCache: Map<Response, CachedInterface>;
+}
+
 export function createClient(options: CreateClientOptions): string {
   const { name, operations } = options.client;
   /*const debugText = JSON.stringify(
@@ -25,8 +37,15 @@ export function createClient(options: CreateClientOptions): string {
     },
     2
   );*/
-  const operationText = operations.map(createOperation).join();
-  return createSourceFile(`export class ${name} {
+  const context: ClientContext = {
+    interfaceCache: new Map(),
+    responseCache: new Map(),
+  };
+  const operationText = operations.map((op) => createOperation(context, op)).join();
+  const interfaceText = createInterfaces(context);
+  return createSourceFile(`${interfaceText}
+
+export class ${name} {
   constructor() {
 
   }
@@ -34,44 +53,95 @@ export function createClient(options: CreateClientOptions): string {
 }`);
 }
 
-function createOperation(operation: Operation): string {
-  const params = createOperationParams(operation);
-  const returnType = createReturnType(operation.responses);
+function createInterfaces(context: ClientContext): string {
+  const interfaces = Array.from(context.interfaceCache.values())
+    .map((i) => i.generatedText)
+    .join("\n\n");
+  const responses = Array.from(context.responseCache.values())
+    .map((r) => r.generatedText)
+    .join("\n\n");
+  return `${interfaces}\n\n${responses}`;
+}
+
+function createOperation(context: ClientContext, operation: Operation): string {
+  const params = createOperationParams(context, operation);
+  const returnType = createReturnType(context, operation);
   return `public ${operation.name}(${params}): ${returnType} {
     throw new Error("Not yet implemented");
   }`;
 }
 
-function createReturnType(responses: Response[]): string {
-  return responses.filter(notErrorResponse).map(responseToTypeScript).join(" | ");
+function createReturnType(context: ClientContext, operation: Operation): string {
+  return operation.responses
+    .filter(notErrorResponse)
+    .map((r) => responseToTypeScript(context, r, operation.name))
+    .join(" | ");
 }
 
 function notErrorResponse(response: Response): boolean {
   return !response.isError;
 }
 
-function responseToTypeScript(response: Response): string {
-  return modelTypeOrResponseToTypeScript(response);
+function responseToTypeScript(
+  context: ClientContext,
+  response: Response,
+  operationName: string
+): string {
+  const cachedResponse = context.responseCache.get(response);
+  if (cachedResponse) {
+    return cachedResponse.name;
+  }
+
+  const name = `${operationName}Response`;
+
+  const responseInterface: CachedInterface = {
+    name,
+    generatedText: "",
+  };
+
+  context.responseCache.set(response, responseInterface);
+
+  const props = Array.from(response.properties.values()).map((p) =>
+    modelPropertyToTypeScript(context, p)
+  );
+
+  responseInterface.generatedText = `export interface ${name} { ${props.join(",")} }`;
+
+  return responseInterface.name;
 }
 
-function modelTypeToTypeScript(type: ModelType): string {
-  return modelTypeOrResponseToTypeScript(type);
+function modelTypeToTypeScript(context: ClientContext, type: ModelType): string {
+  const cachedModel = context.interfaceCache.get(type);
+  if (cachedModel) {
+    return cachedModel.name;
+  }
+
+  // TODO: uniqueness?
+  const name = type.name;
+
+  const model: CachedInterface = {
+    name,
+    generatedText: "",
+  };
+
+  context.interfaceCache.set(type, model);
+  const props = Array.from(type.properties.values()).map((p) =>
+    modelPropertyToTypeScript(context, p)
+  );
+
+  model.generatedText = `interface ${name} { ${props.join(",")} }`;
+
+  return name;
 }
 
-function modelTypeOrResponseToTypeScript(type: ModelType | Response): string {
-  const props = Array.from(type.properties.values()).map(modelPropertyToTypeScript);
-
-  return `{ ${props.join(",")} }`;
-}
-
-function modelPropertyToTypeScript(property: ModelProperty): string {
+function modelPropertyToTypeScript(context: ClientContext, property: ModelProperty): string {
   const separator = property.optional ? "?:" : ":";
-  const value = restTypeToTypeScript(property.type);
+  const value = restTypeToTypeScript(context, property.type);
   const name = quoteNameIfNeeded(property.name);
   return `${name} ${separator} ${value}`;
 }
 
-function restTypeToTypeScript(type: RestType): string {
+function restTypeToTypeScript(context: ClientContext, type: RestType): string {
   switch (type.kind) {
     case "string":
       return type.constant === undefined ? "string" : `"${type.constant}"`;
@@ -79,35 +149,42 @@ function restTypeToTypeScript(type: RestType): string {
     case "number":
       return String(type.constant ?? type.kind);
     case "array":
-      return arrayTypeToTypeScript(type);
+      return arrayTypeToTypeScript(context, type);
     case "model":
-      return modelTypeToTypeScript(type);
+      return modelTypeToTypeScript(context, type);
     case "union":
-      return unionTypeToTypeScript(type);
+      return unionTypeToTypeScript(context, type);
+    case "map":
+      return mapTypeToTypeScript(context, type);
     default:
-      throw new Error(`Unknown RestType ${type}`);
+      throw new Error(`Unknown RestType ${(type as RestType).kind}`);
   }
 }
 
-function arrayTypeToTypeScript(type: ArrayType): string {
+function arrayTypeToTypeScript(context: ClientContext, type: ArrayType): string {
   const elementKind = type.elementType.kind;
   if (elementKind === "array" || elementKind === "model") {
-    return `Array<${restTypeToTypeScript(type.elementType)}>`;
+    return `Array<${restTypeToTypeScript(context, type.elementType)}>`;
   }
-  return `${restTypeToTypeScript(type.elementType)}[]`;
+  return `${restTypeToTypeScript(context, type.elementType)}[]`;
 }
 
-function unionTypeToTypeScript(type: UnionType): string {
-  return type.options.map(restTypeToTypeScript).join(" | ");
+function mapTypeToTypeScript(context: ClientContext, type: MapType): string {
+  const valueType = restTypeToTypeScript(context, type.valueType);
+  return `Map<string, ${valueType}>`;
 }
 
-function createOperationParams(operation: Operation): string {
-  return operation.parameters.map(createParameter).join(", ");
+function unionTypeToTypeScript(context: ClientContext, type: UnionType): string {
+  return type.options.map((o) => restTypeToTypeScript(context, o)).join(" | ");
 }
 
-function createParameter(parameter: Parameter): string {
+function createOperationParams(context: ClientContext, operation: Operation): string {
+  return operation.parameters.map((p) => createParameter(context, p)).join(", ");
+}
+
+function createParameter(context: ClientContext, parameter: Parameter): string {
   const optional = parameter.optional ? "?" : "";
-  const paramType = restTypeToTypeScript(parameter.type);
+  const paramType = restTypeToTypeScript(context, parameter.type);
   const name = nameToIdentifier(parameter.name);
   return `${name}${optional}: ${paramType}`;
 }
