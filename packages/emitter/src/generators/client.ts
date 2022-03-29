@@ -18,6 +18,7 @@ export interface CreateClientOptions {
 interface CachedInterface {
   name: string;
   generatedText: string;
+  inline: boolean;
 }
 
 interface ClientContext {
@@ -55,6 +56,7 @@ export class ${name} {
 
 function createInterfaces(context: ClientContext): string {
   const interfaces = Array.from(context.interfaceCache.values())
+    .filter((i) => !i.inline)
     .map((i) => i.generatedText)
     .join("\n\n");
   const responses = Array.from(context.responseCache.values())
@@ -96,6 +98,7 @@ function responseToTypeScript(
 
   const responseInterface: CachedInterface = {
     name,
+    inline: false,
     generatedText: "",
   };
 
@@ -113,14 +116,20 @@ function responseToTypeScript(
 function modelTypeToTypeScript(context: ClientContext, type: ModelType): string {
   const cachedModel = context.interfaceCache.get(type);
   if (cachedModel) {
-    return cachedModel.name;
+    if (cachedModel.inline) {
+      return cachedModel.generatedText;
+    } else {
+      return cachedModel.name;
+    }
   }
 
   // TODO: uniqueness?
   const name = type.name;
+  const inline = !type.name;
 
   const model: CachedInterface = {
     name,
+    inline,
     generatedText: "",
   };
 
@@ -129,7 +138,11 @@ function modelTypeToTypeScript(context: ClientContext, type: ModelType): string 
     modelPropertyToTypeScript(context, p)
   );
 
-  model.generatedText = `interface ${name} { ${props.join(",")} }`;
+  if (inline) {
+    model.generatedText = `{ ${props.join(",")} }`;
+  } else {
+    model.generatedText = `interface ${name} { ${props.join(",")} }`;
+  }
 
   return name;
 }

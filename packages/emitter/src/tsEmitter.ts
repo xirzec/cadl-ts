@@ -184,6 +184,11 @@ function createRestType(context: Context, type: Type): RestType | undefined {
           };
         case "Map":
           return createMapType(context, type);
+        case "zonedDateTime":
+          // TODO: handle the formatting
+          return {
+            kind: "string",
+          };
         default:
           error(context.program, `Can't make RestType out of intrinsic ${type.name}`, type);
           return undefined;
