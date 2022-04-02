@@ -12,5 +12,6 @@
   "eslint.useESLintClass": true,
   "cadl.cadl-server.path": "${workspaceRoot}/packages/emitter/node_modules/@cadl-lang/compiler",
   "typescript.tsdk": "./packages/emitter/node_modules/typescript/lib",
-  "typescript.enablePromptUseWorkspaceTsdk": true
+  "typescript.enablePromptUseWorkspaceTsdk": true,
+  "cSpell.words": ["cadl", "safeint"]
 }
