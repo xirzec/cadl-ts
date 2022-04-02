@@ -43,6 +43,10 @@ interface Context {
 }
 
 export async function $onEmit(program: Program): Promise<void> {
+  if (program.compilerOptions.noEmit) {
+    return;
+  }
+
   const options: TSEmitterOptions = {
     outputPath: program.compilerOptions.outputPath || resolvePath("./ts/"),
   };
@@ -54,11 +58,8 @@ export async function $onEmit(program: Program): Promise<void> {
   };
 
   const sdkPackage = createPackage(context);
-
-  if (!program.compilerOptions.noEmit) {
-    const output = render(sdkPackage);
-    await emit(program.host, options.outputPath, output);
-  }
+  const output = render(sdkPackage);
+  await emit(program.host, options.outputPath, output);
 }
 
 function createPackage(context: Context): Package {
@@ -72,7 +73,7 @@ function createPackage(context: Context): Package {
         name: `${name}Client`,
         operations: [],
       };
-      clients.set(client.name, client);
+      clients.set(name, client);
     }
     client.operations.push(createOperationFromRoute(context, route));
   }
@@ -82,6 +83,7 @@ function createPackage(context: Context): Package {
 }
 
 function createOperationFromRoute(context: Context, route: OperationDetails): Operation {
+  // debugLog(context.program, `route: ${route.operation.name}:${route.verb} ${route.path}`);
   return {
     name: route.operation.name,
     parameters: getParameters(context, route.parameters),
