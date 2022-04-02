@@ -29,3 +29,24 @@ export function error(p: Program, message: string, target?: DiagnosticTarget) {
   });
   p.host.logSink.log({ level: "error", message });
 }
+
+export function stringify(obj: unknown): string {
+  const seen = new Set<unknown>();
+  return JSON.stringify(
+    obj,
+    (_key: string, value: unknown) => {
+      if (Array.isArray(value) || (typeof value === "object" && value !== null)) {
+        if (seen.has(value)) {
+          return "[Circular]";
+        }
+        seen.add(value);
+      }
+      if (value instanceof Map) {
+        return Array.from(value.values());
+      }
+
+      return value;
+    },
+    2
+  );
+}

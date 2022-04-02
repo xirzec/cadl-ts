@@ -78,7 +78,7 @@ model EntityLinkingTask is Task<EntityLinkingParameters> {}
 model EntityLinkingTaskResult is TaskResult<EntityLinkingResult> {}
 
 model PiiTask is Task<PiiParameters> {}
-model PiiTaskResult is TaskResult<{}> {}
+model PiiTaskResult is TaskResult<PiiResult> {}
 
 model KeyPhraseTask is Task<KeyPhraseParameters> {}
 model KeyPhraseTaskResult is TaskResult<KeyPhraseResult> {}

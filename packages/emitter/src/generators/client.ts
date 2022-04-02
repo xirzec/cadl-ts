@@ -28,24 +28,13 @@ interface ClientContext {
 
 export function createClient(options: CreateClientOptions): string {
   const { name, operations } = options.client;
-  /*const debugText = JSON.stringify(
-    options.client,
-    (_key, value) => {
-      if (value instanceof Map) {
-        return Array.from(value.values());
-      }
-      return value;
-    },
-    2
-  );*/
   const context: ClientContext = {
     interfaceCache: new Map(),
     responseCache: new Map(),
   };
-  const operationText = operations.map((op) => createOperation(context, op)).join();
+  const operationText = operations.map((op) => createOperation(context, op)).join("");
   const interfaceText = createInterfaces(context);
   return createSourceFile(`${interfaceText}
-
 export class ${name} {
   constructor() {
 
@@ -140,11 +129,11 @@ function modelTypeToTypeScript(context: ClientContext, type: ModelType): string 
 
   if (inline) {
     model.generatedText = `{ ${props.join(",")} }`;
+    return model.generatedText;
   } else {
     model.generatedText = `interface ${name} { ${props.join(",")} }`;
+    return name;
   }
-
-  return name;
 }
 
 function modelPropertyToTypeScript(context: ClientContext, property: ModelProperty): string {
