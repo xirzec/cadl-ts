@@ -10,7 +10,7 @@ const clientNameKey = Symbol();
 export function $clientName({ program }: DecoratorContext, entity: Type, name: string) {
   if (
     !validateDecoratorTarget(program, entity, "@clientName", "Operation") ||
-    !validateDecoratorParamType(program, entity, name, "string")
+    !validateDecoratorParamType(program, entity, name, "String")
   ) {
     return;
   }
