@@ -43,10 +43,6 @@ interface Context {
 }
 
 export async function $onEmit(program: Program): Promise<void> {
-  if (program.compilerOptions.noEmit) {
-    return;
-  }
-
   const options: TSEmitterOptions = {
     outputPath: program.compilerOptions.outputPath || resolvePath("./ts/"),
   };
@@ -58,8 +54,10 @@ export async function $onEmit(program: Program): Promise<void> {
   };
 
   const sdkPackage = createPackage(context);
-  const output = render(sdkPackage);
-  await emit(program.host, options.outputPath, output);
+  if (!program.compilerOptions.noEmit) {
+    const output = render(sdkPackage);
+    await emit(program.host, options.outputPath, output);
+  }
 }
 
 function createPackage(context: Context): Package {
