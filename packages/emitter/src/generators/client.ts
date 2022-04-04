@@ -33,14 +33,25 @@ export function createClient(options: CreateClientOptions): string {
     responseCache: new Map(),
   };
   const operationText = operations.map((op) => createOperation(context, op)).join("");
+  const importText = createImports();
   const interfaceText = createInterfaces(context);
-  return createSourceFile(`${interfaceText}
+  return createSourceFile(`
+${importText}
+${interfaceText}
 export class ${name} {
-  constructor() {
+  private _pipeline: Pipeline;
 
+  constructor() {
+    this._pipeline = createClientPipeline({});
   }
   ${operationText}
 }`);
+}
+
+function createImports(): string {
+  return `import { createPipelineRequest, Pipeline } from "@azure/core-rest-pipeline";
+import { createClientPipeline, makeRequest } from "@azure-tools/cadl-ts-client";
+`;
 }
 
 function createInterfaces(context: ClientContext): string {
@@ -57,8 +68,23 @@ function createInterfaces(context: ClientContext): string {
 function createOperation(context: ClientContext, operation: Operation): string {
   const params = createOperationParams(context, operation);
   const returnType = createReturnType(context, operation);
-  return `public ${operation.name}(${params}): ${returnType} {
-    throw new Error("Not yet implemented");
+  return `public async ${operation.name}(${params}): Promise<${returnType}> {
+    const request = createPipelineRequest({
+      url: "",
+      method: "GET",
+    });
+
+    request.headers.set("foo", "bar");
+    const body = {
+      A: "B",
+    };
+    request.body = JSON.stringify(body);
+    const response = await makeRequest(this._pipeline, request);
+    if (!response.bodyAsText) {
+      throw new Error("Well, that was unexpected");
+    }
+    const parsedResponse = JSON.parse(response.bodyAsText);
+    return parsedResponse;
   }`;
 }
 
@@ -131,7 +157,7 @@ function modelTypeToTypeScript(context: ClientContext, type: ModelType): string 
     model.generatedText = `{ ${props.join(",")} }`;
     return model.generatedText;
   } else {
-    model.generatedText = `interface ${name} { ${props.join(",")} }`;
+    model.generatedText = `export interface ${name} { ${props.join(",")} }`;
     return name;
   }
 }
@@ -200,5 +226,8 @@ function quoteNameIfNeeded(name: string): string {
 }
 
 function nameToIdentifier(name: string): string {
-  return name.replace(/[^A-Za-z0-9_]/g, "_");
+  // TODO: change foo-bar-baz into fooBarBaz
+  // convert foo_bar_baz into fooBarBaz as well?
+  // validate first character is not number?
+  return name.replace(/[^A-Za-z0-9_$]/g, "_");
 }

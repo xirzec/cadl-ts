@@ -12,6 +12,8 @@
   "author": "Jeff Fisher <jeffish@microsoft.com>",
   "license": "MIT",
   "devDependencies": {
+    "@azure/core-rest-pipeline": "~1.8.0",
+    "@azure-tools/cadl-ts-client": "workspace:*",
     "@azure-tools/cadl-ts-emitter": "workspace:*",
     "@cadl-lang/compiler": "0.30.0",
     "@cadl-lang/rest": "0.13.0",
