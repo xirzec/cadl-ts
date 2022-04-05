@@ -24,6 +24,8 @@ interface CachedInterface {
 interface ClientContext {
   interfaceCache: Map<ModelType, CachedInterface>;
   responseCache: Map<Response, CachedInterface>;
+  extraCorePipelineImports: Set<string>;
+  extraClientLibImports: Set<string>;
 }
 
 export function createClient(options: CreateClientOptions): string {
@@ -31,9 +33,11 @@ export function createClient(options: CreateClientOptions): string {
   const context: ClientContext = {
     interfaceCache: new Map(),
     responseCache: new Map(),
+    extraCorePipelineImports: new Set(),
+    extraClientLibImports: new Set(),
   };
   const operationText = operations.map((op) => createOperation(context, op)).join("");
-  const importText = createImports();
+  const importText = createImports(context);
   const interfaceText = createInterfaces(context);
   return createSourceFile(`
 ${importText}
@@ -50,9 +54,23 @@ export class ${name} {
 }`);
 }
 
-function createImports(): string {
-  return `import { createPipelineRequest, Pipeline, PipelineOptions, RestError } from "@azure/core-rest-pipeline";
-import { createClientPipeline, makeRequest, getRequestUrl, tryParseResponse, stringifyQueryParam, getHeader } from "@azure-tools/cadl-ts-client";
+function createImports(context: ClientContext): string {
+  const corePipelineImports = [
+    "createPipelineRequest",
+    "Pipeline",
+    "PipelineOptions",
+    ...context.extraCorePipelineImports,
+  ];
+  const tsClientImports = [
+    "createClientPipeline",
+    "makeRequest",
+    "getRequestUrl",
+    "tryParseResponse",
+    "stringifyQueryParam",
+    ...context.extraClientLibImports,
+  ];
+  return `import { ${corePipelineImports.join()} } from "@azure/core-rest-pipeline";
+import { ${tsClientImports.join()} } from "@azure-tools/cadl-ts-client";
 `;
 }
 
@@ -281,6 +299,9 @@ function stringifyParamIfNeeded(p: Parameter): string {
 
 function getParseResponse(context: ClientContext, operation: Operation): string {
   const hasDefault = operation.responses.some((r) => r.statusCodes.length === 0);
+  if (!hasDefault) {
+    context.extraCorePipelineImports.add("RestError");
+  }
   const defaultHandler = hasDefault
     ? ""
     : `// TODO: call onResponse
@@ -326,6 +347,7 @@ function getParseResponseForStatus(context: ClientContext, response: Response): 
 
   let parseHeadersCode = "";
   if (headers.length) {
+    context.extraClientLibImports.add("getHeader");
     const spreadBody = bodyType ? "...parsedResponse," : "";
     const setHeaders = getHeadersFromResponseProperties(headers);
     parseHeadersCode = `const result = {
