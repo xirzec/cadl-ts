@@ -322,15 +322,6 @@ function createResponseFromModel(context: Context, model: ModelType): Response {
     if (isStatusCode(context.program, prop)) {
       const codes: string[] = getStatusCodes(context.program, prop);
       statusCodes.push(...codes);
-    } else if (isBody(context.program, prop) && prop.type.kind === "Model") {
-      // flatten body model onto outer model
-      for (const bodyProp of getAllModelProperties(prop.type)) {
-        const type = createModelProperty(context, bodyProp);
-        if (type) {
-          type.location = "body";
-          properties.set(bodyProp.name, type);
-        }
-      }
     } else {
       const type = createModelProperty(context, prop);
       if (type) {

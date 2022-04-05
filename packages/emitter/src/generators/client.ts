@@ -40,17 +40,19 @@ ${importText}
 ${interfaceText}
 export class ${name} {
   private _pipeline: Pipeline;
+  private _endpoint: string;
 
-  constructor() {
-    this._pipeline = createClientPipeline({});
+  constructor(endpoint: string, options?: PipelineOptions) {
+    this._endpoint = endpoint;
+    this._pipeline = createClientPipeline(options ?? {});
   }
   ${operationText}
 }`);
 }
 
 function createImports(): string {
-  return `import { createPipelineRequest, Pipeline } from "@azure/core-rest-pipeline";
-import { createClientPipeline, makeRequest } from "@azure-tools/cadl-ts-client";
+  return `import { createPipelineRequest, Pipeline, PipelineOptions, RestError } from "@azure/core-rest-pipeline";
+import { createClientPipeline, makeRequest, getRequestUrl, tryParseResponse, stringifyQueryParam } from "@azure-tools/cadl-ts-client";
 `;
 }
 
@@ -68,23 +70,27 @@ function createInterfaces(context: ClientContext): string {
 function createOperation(context: ClientContext, operation: Operation): string {
   const params = createOperationParams(context, operation);
   const returnType = createReturnType(context, operation);
+  const requestMethod = operation.verb !== "GET" ? `method: "${operation.verb}",` : "";
+  const headers = getHeadersFromParameters(operation);
+  const queryParams = getQueryParamsFromParameters(operation);
+  const body = getBody(operation);
+  const parseResponse = getParseResponse(context, operation);
   return `public async ${operation.name}(${params}): Promise<${returnType}> {
+    const url = getRequestUrl({
+      base: this._endpoint,
+      path: "${operation.path}",
+      queryParams: ${queryParams},
+    });
     const request = createPipelineRequest({
-      url: "",
-      method: "GET",
+      url,
+      ${requestMethod}
     });
 
-    request.headers.set("foo", "bar");
-    const body = {
-      A: "B",
-    };
-    request.body = JSON.stringify(body);
+    ${headers}
+    ${body}
+  
     const response = await makeRequest(this._pipeline, request);
-    if (!response.bodyAsText) {
-      throw new Error("Well, that was unexpected");
-    }
-    const parsedResponse = JSON.parse(response.bodyAsText);
-    return parsedResponse;
+    ${parseResponse}
   }`;
 }
 
@@ -119,9 +125,15 @@ function responseToTypeScript(
 
   context.responseCache.set(response, responseInterface);
 
-  const props = Array.from(response.properties.values()).map((p) =>
-    modelPropertyToTypeScript(context, p)
-  );
+  const props = Array.from(response.properties.values())
+    .flatMap((p) => {
+      if (p.location === "body" && p.type.kind === "model") {
+        return Array.from(p.type.properties.values());
+      } else {
+        return p;
+      }
+    })
+    .map((p) => modelPropertyToTypeScript(context, p));
 
   responseInterface.generatedText = `export interface ${name} { ${props.join(",")} }`;
 
@@ -215,6 +227,115 @@ function createParameter(context: ClientContext, parameter: Parameter): string {
   const paramType = restTypeToTypeScript(context, parameter.type);
   const name = nameToIdentifier(parameter.name);
   return `${name}${optional}: ${paramType}`;
+}
+
+function getHeadersFromParameters(operation: Operation): string {
+  return operation.parameters
+    .filter((p) => p.location === "header")
+    .map((p) => {
+      const identifier = nameToIdentifier(p.name);
+      const setHeader = `request.headers.set("${p.name}", ${identifier});`;
+      if (p.optional) {
+        return `if (${identifier}) {
+          ${setHeader}
+        }`;
+      } else {
+        return setHeader;
+      }
+    })
+    .join("\n");
+}
+
+function getQueryParamsFromParameters(operation: Operation): string {
+  const body = operation.parameters
+    .filter((p) => p.location === "query")
+    .map((p) => {
+      const name = quoteNameIfNeeded(p.name);
+      const value = stringifyParamIfNeeded(p);
+      return name === value ? name : `${name}:  ${value}`;
+    })
+    .join(",");
+  return `{ ${body} }`;
+}
+
+function stringifyParamIfNeeded(p: Parameter): string {
+  const kind = p.type.kind;
+  const identifier = nameToIdentifier(p.name);
+  if (kind === "string") {
+    return identifier;
+  } else if (kind === "boolean" || kind === "number") {
+    return `stringifyQueryParam(${identifier})`;
+  } else if (kind === "union") {
+    // TODO: robustness
+    const nonString = p.type.options.some((t) => t.kind !== "string");
+    return nonString ? `stringifyQueryParam(${identifier})` : identifier;
+  } else if (kind == "array") {
+    if (p.type.elementType.kind !== "string") {
+      throw new Error(`Non-string arrays not supported currently for query parameter ${p.name}`);
+    }
+    return identifier;
+  } else {
+    throw new Error(`No support for ${p.type.kind} in query parameter ${p.name}`);
+  }
+}
+
+function getParseResponse(context: ClientContext, operation: Operation): string {
+  const hasDefault = operation.responses.some((r) => r.statusCodes.length === 0);
+  const defaultHandler = hasDefault
+    ? ""
+    : `// TODO: call onResponse
+throw new RestError("Unknown response code", { request, response});}`;
+  const responseHandling = operation.responses
+    .map((r) => getParseResponseForStatus(context, r))
+    .join("\n");
+  return `${responseHandling}
+
+${defaultHandler} 
+`;
+}
+
+function getParseResponseForStatus(context: ClientContext, response: Response): string {
+  const isError = response.isError;
+  const propArray = Array.from(response.properties.values());
+  let bodyType = propArray.find((p) => p.location === "body");
+  if (!bodyType && propArray.length === 1) {
+    // let's assume the body type is the first item if it's the only thing
+    bodyType = propArray[0];
+  }
+  if (!bodyType) {
+    throw new Error(`Don't know how to parse response with no body ${response.name}`);
+  }
+  const responseBodyType = restTypeToTypeScript(context, bodyType.type);
+  // TODO: handle more than one status on model
+  const parseCode = `const parsedResponse = tryParseResponse(response) as ${responseBodyType};
+// TODO: parse headers
+// TODO: call onResponse
+${isError ? "throw parsedResponse;" : "return parsedResponse;"}
+`;
+  const codes = response.statusCodes;
+  if (codes.length === 0) {
+    return parseCode;
+  }
+  const comparison =
+    codes.length > 1
+      ? `[${codes.join(",")}].includes(response.status)`
+      : `response.status === ${codes[0]}`;
+  return `if (${comparison}) {\n${parseCode}\n }`;
+}
+
+function getBody(operation: Operation): string {
+  const bodyParam = operation.parameters.find((p) => p.location === "body");
+  if (!bodyParam) {
+    return "";
+  }
+
+  const name = quoteNameIfNeeded(bodyParam.name);
+  // TODO: destructure inputs?
+  const value = nameToIdentifier(bodyParam.name);
+  const bodyDecl = name === value ? name : `${name}: ${value}`;
+
+  return `
+request.body = JSON.stringify({ ${bodyDecl} });`;
 }
 
 function quoteNameIfNeeded(name: string): string {
