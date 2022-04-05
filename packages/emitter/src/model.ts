@@ -42,6 +42,7 @@ export interface ArrayType {
 
 export interface ModelProperty {
   name: string;
+  serializedName?: string | undefined;
   optional: boolean;
   location: ResponseLocation | undefined;
   type: RestType;
@@ -63,6 +64,7 @@ export interface Response {
 
 export interface Parameter {
   name: string;
+  serializedName?: string | undefined;
   location: ParameterLocation;
   type: RestType;
   optional: boolean;

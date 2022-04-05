@@ -52,7 +52,7 @@ export class ${name} {
 
 function createImports(): string {
   return `import { createPipelineRequest, Pipeline, PipelineOptions, RestError } from "@azure/core-rest-pipeline";
-import { createClientPipeline, makeRequest, getRequestUrl, tryParseResponse, stringifyQueryParam } from "@azure-tools/cadl-ts-client";
+import { createClientPipeline, makeRequest, getRequestUrl, tryParseResponse, stringifyQueryParam, getHeader } from "@azure-tools/cadl-ts-client";
 `;
 }
 
@@ -234,7 +234,7 @@ function getHeadersFromParameters(operation: Operation): string {
     .filter((p) => p.location === "header")
     .map((p) => {
       const identifier = nameToIdentifier(p.name);
-      const setHeader = `request.headers.set("${p.name}", ${identifier});`;
+      const setHeader = `request.headers.set("${p.serializedName}", ${identifier});`;
       if (p.optional) {
         return `if (${identifier}) {
           ${setHeader}
@@ -294,23 +294,50 @@ ${defaultHandler}
 `;
 }
 
+function getHeadersFromResponseProperties(headers: ModelProperty[]): string {
+  return headers
+    .map((header) => {
+      const name = quoteNameIfNeeded(header.name);
+      return `${name}: getHeader(response, "${header.serializedName}")`;
+    })
+    .join(",");
+}
+
 function getParseResponseForStatus(context: ClientContext, response: Response): string {
   const isError = response.isError;
   const propArray = Array.from(response.properties.values());
-  let bodyType = propArray.find((p) => p.location === "body");
-  if (!bodyType && propArray.length === 1) {
+  const headers = propArray.filter((p) => p.location === "header");
+  const nonHeaders = propArray.filter((p) => p.location !== "header");
+  let bodyType = nonHeaders.find((p) => p.location === "body");
+  if (!bodyType && nonHeaders.length === 1) {
     // let's assume the body type is the first item if it's the only thing
-    bodyType = propArray[0];
+    bodyType = nonHeaders[0];
   }
-  if (!bodyType) {
-    throw new Error(`Don't know how to parse response with no body ${response.name}`);
+  if (!bodyType && headers.length === 0) {
+    // void return
+    return "return;";
   }
-  const responseBodyType = restTypeToTypeScript(context, bodyType.type);
-  // TODO: handle more than one status on model
-  const parseCode = `const parsedResponse = tryParseResponse(response) as ${responseBodyType};
-// TODO: parse headers
+  let parseBodyCode = "";
+  if (bodyType) {
+    const responseBodyType = restTypeToTypeScript(context, bodyType.type);
+    const parsedId = headers.length ? "parsedResponse" : "result";
+    parseBodyCode = `const ${parsedId} = tryParseResponse(response) as ${responseBodyType};`;
+  }
+
+  let parseHeadersCode = "";
+  if (headers.length) {
+    const spreadBody = bodyType ? "...parsedResponse," : "";
+    const setHeaders = getHeadersFromResponseProperties(headers);
+    parseHeadersCode = `const result = {
+      ${spreadBody}
+      ${setHeaders}
+    };`;
+  }
+  const parseCode = `
+${parseBodyCode}
+${parseHeadersCode}
 // TODO: call onResponse
-${isError ? "throw parsedResponse;" : "return parsedResponse;"}
+${isError ? "throw result;" : "return result;"}
 `;
   const codes = response.statusCodes;
   if (codes.length === 0) {

@@ -30,7 +30,7 @@ import {
 } from "./model.js";
 import { emit } from "./printer.js";
 import RestHttpVerb = RestHttp.HttpVerb;
-const { getStatusCodes, isStatusCode, isHeader, isBody } = RestHttp;
+const { getStatusCodes, isStatusCode, isHeader, isBody, getHeaderFieldName } = RestHttp;
 
 export interface TSEmitterOptions {
   outputPath: string;
@@ -109,9 +109,11 @@ function getParameters(context: Context, params: HttpOperationParameters): Param
   for (const param of params.parameters) {
     const type = createRestType(context, param.param.type);
     if (type) {
+      const serializedName = getHeaderFieldName(context.program, param.param);
       result.push({
         location: param.type,
-        name: param.name,
+        name: param.param.name,
+        serializedName,
         optional: param.param.optional,
         type,
       });
@@ -265,8 +267,10 @@ function createMapType(context: Context, type: ModelType): RestType | undefined 
 
 function createModelProperty(context: Context, prop: ModelTypeProperty): ModelProperty | undefined {
   let location: ResponseLocation | undefined;
+  let serializedName: string | undefined;
   if (isHeader(context.program, prop)) {
     location = "header";
+    serializedName = getHeaderFieldName(context.program, prop);
   } else if (isBody(context.program, prop)) {
     location = "body";
   }
@@ -276,6 +280,7 @@ function createModelProperty(context: Context, prop: ModelTypeProperty): ModelPr
   if (type) {
     return {
       name: prop.name,
+      serializedName,
       location,
       optional: prop.optional,
       type,

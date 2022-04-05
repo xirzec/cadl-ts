@@ -47,3 +47,14 @@ export function stringifyQueryParam(value: boolean | number | undefined): string
     return undefined;
   }
 }
+
+export function getHeader(response: PipelineResponse, headerName: string): string {
+  const value = response.headers.get(headerName);
+  if (value === undefined) {
+    throw new RestError(`Missing required response header ${headerName}`, {
+      response,
+      code: RestError.PARSE_ERROR,
+    });
+  }
+  return value;
+}
