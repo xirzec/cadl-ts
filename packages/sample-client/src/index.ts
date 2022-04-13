@@ -1,1 +1,1 @@
-export class ExampleClient {}
+export * from "./generated/LanguagesClient";
