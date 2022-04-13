@@ -21,11 +21,11 @@ export interface MultiLanguageInput {
   language?: string;
 }
 
-export interface DocumentLinkedEntities {
+export interface DocumentEntities {
   id: string;
   warnings: Array<Warning>;
   statistics: Array<DocumentStatistics>;
-  entities: Array<LinkedEntity>;
+  entities: Array<Entity>;
 }
 
 export interface Warning {
@@ -39,21 +39,13 @@ export interface DocumentStatistics {
   transactionsCount: number;
 }
 
-export interface LinkedEntity {
-  name: string;
-  matches: Array<Match>;
-  language: string;
-  id?: string;
-  url: string;
-  dataSource: string;
-  bingId?: string;
-}
-
-export interface Match {
-  confidenceScore: number;
+export interface Entity {
   text: string;
+  category: string;
+  subcategory?: string;
   offset: number;
   length: number;
+  confidenceScore: number;
 }
 
 export interface DocumentError {
@@ -84,20 +76,20 @@ export interface RequestStatistics {
   transactionsCount: number;
 }
 
-export interface EntityLinkingResult {
-  documents: Array<DocumentLinkedEntities>;
+export interface EntitiesResult {
+  documents: Array<DocumentEntities>;
   errors: Array<DocumentError>;
   statistics?: RequestStatistics;
   modelVersion: string;
 }
 
 export interface recognizeResponse {
-  documents: Array<DocumentLinkedEntities>;
+  documents: Array<DocumentEntities>;
   errors: Array<DocumentError>;
   statistics?: RequestStatistics;
   modelVersion: string;
 }
-export class EntityLinkingClient {
+export class EntitiesGeneratedClient {
   protected _pipeline: Pipeline;
   private _endpoint: string;
 
@@ -114,7 +106,7 @@ export class EntityLinkingClient {
   ): Promise<recognizeResponse> {
     const url = getRequestUrl({
       base: this._endpoint,
-      path: "/entities/linking",
+      path: "/entities/recognition/general",
       queryParams: {
         "model-version": model_version,
         loggingOptOut: stringifyQueryParam(loggingOptOut),
@@ -131,7 +123,7 @@ export class EntityLinkingClient {
 
     const response = await makeRequest(this._pipeline, request);
     if (response.status === 200) {
-      const result = tryParseResponse(response) as EntityLinkingResult;
+      const result = tryParseResponse(response) as EntitiesResult;
 
       // TODO: call onResponse
       return result;

@@ -11,21 +11,21 @@ import {
   stringifyQueryParam,
 } from "@azure-tools/cadl-ts-client";
 
-export interface LanguageBatchInput {
-  documents: Array<LanguageInput>;
+export interface MultiLanguageBatchInput {
+  documents: Array<MultiLanguageInput>;
 }
 
-export interface LanguageInput {
+export interface MultiLanguageInput {
   id: string;
   text: string;
-  countryHint?: string;
+  language?: string;
 }
 
-export interface DocumentLanguage {
+export interface DocumentLinkedEntities {
   id: string;
   warnings: Array<Warning>;
   statistics: Array<DocumentStatistics>;
-  detectedLanguage: DetectedLanguage;
+  entities: Array<LinkedEntity>;
 }
 
 export interface Warning {
@@ -39,10 +39,21 @@ export interface DocumentStatistics {
   transactionsCount: number;
 }
 
-export interface DetectedLanguage {
+export interface LinkedEntity {
   name: string;
-  iso6391Name: string;
+  matches: Array<Match>;
+  language: string;
+  id?: string;
+  url: string;
+  dataSource: string;
+  bingId?: string;
+}
+
+export interface Match {
   confidenceScore: number;
+  text: string;
+  offset: number;
+  length: number;
 }
 
 export interface DocumentError {
@@ -73,20 +84,20 @@ export interface RequestStatistics {
   transactionsCount: number;
 }
 
-export interface LanguageResult {
-  documents: Array<DocumentLanguage>;
+export interface EntityLinkingResult {
+  documents: Array<DocumentLinkedEntities>;
   errors: Array<DocumentError>;
   statistics?: RequestStatistics;
   modelVersion: string;
 }
 
-export interface detectResponse {
-  documents: Array<DocumentLanguage>;
+export interface recognizeResponse {
+  documents: Array<DocumentLinkedEntities>;
   errors: Array<DocumentError>;
   statistics?: RequestStatistics;
   modelVersion: string;
 }
-export class LanguagesClient {
+export class EntityLinkingGeneratedClient {
   protected _pipeline: Pipeline;
   private _endpoint: string;
 
@@ -94,16 +105,16 @@ export class LanguagesClient {
     this._endpoint = endpoint;
     this._pipeline = createClientPipeline(options ?? {});
   }
-  public async detect(
-    input: LanguageBatchInput,
+  public async recognize(
+    input: MultiLanguageBatchInput,
     model_version?: string,
     loggingOptOut?: boolean,
     stringIndexType?: string,
     showStats?: boolean
-  ): Promise<detectResponse> {
+  ): Promise<recognizeResponse> {
     const url = getRequestUrl({
       base: this._endpoint,
-      path: "/languages",
+      path: "/entities/linking",
       queryParams: {
         "model-version": model_version,
         loggingOptOut: stringifyQueryParam(loggingOptOut),
@@ -120,7 +131,7 @@ export class LanguagesClient {
 
     const response = await makeRequest(this._pipeline, request);
     if (response.status === 200) {
-      const result = tryParseResponse(response) as LanguageResult;
+      const result = tryParseResponse(response) as EntityLinkingResult;
 
       // TODO: call onResponse
       return result;

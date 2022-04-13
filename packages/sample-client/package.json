@@ -5,9 +5,11 @@
   "main": "dist/src/index.js",
   "type": "module",
   "scripts": {
-    "clean": "rimraf ./dist",
+    "clean": "npm run clean:ts && npm run clean:generated",
+    "clean:ts": "rimraf ./dist",
     "clean:generated": "rimraf ./src/generated",
-    "build": "tsc -p .",
+    "build": "npm run clean && npm run build:cadl && npm run build:ts",
+    "build:ts": "tsc -p .",
     "build:cadl": "cadl compile cadl/main.cadl --output-path \"./src/generated\" --emit @azure-tools/cadl-ts-emitter",
     "regenerate": "npm run clean:generated && npm run build:cadl",
     "lint": "eslint src",

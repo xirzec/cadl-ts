@@ -90,7 +90,7 @@ export interface recognizeResponse {
   statistics?: RequestStatistics;
   modelVersion: string;
 }
-export class PiiClient {
+export class PiiGeneratedClient {
   protected _pipeline: Pipeline;
   private _endpoint: string;
 

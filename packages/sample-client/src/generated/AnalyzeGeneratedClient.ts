@@ -321,7 +321,7 @@ export interface getStatusResponse {
     sentimentAnalysisTasks: Array<SentimentTaskResult>;
   };
 }
-export class AnalyzeClient {
+export class AnalyzeGeneratedClient {
   protected _pipeline: Pipeline;
   private _endpoint: string;
 

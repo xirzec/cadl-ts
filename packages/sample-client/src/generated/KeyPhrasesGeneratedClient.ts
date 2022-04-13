@@ -21,13 +21,11 @@ export interface MultiLanguageInput {
   language?: string;
 }
 
-export interface DocumentSentiment {
+export interface DocumentKeyPhrases {
   id: string;
   warnings: Array<Warning>;
   statistics: Array<DocumentStatistics>;
-  sentiment: string;
-  sentences: Array<SentenceSentiment>;
-  confidenceScores: SentimentConfidenceScorePerLabel;
+  keyPhrases: string[];
 }
 
 export interface Warning {
@@ -39,40 +37,6 @@ export interface Warning {
 export interface DocumentStatistics {
   charactersCount: number;
   transactionsCount: number;
-}
-
-export interface SentenceSentiment {
-  text: string;
-  sentiment: string;
-  confidenceScores: SentimentConfidenceScorePerLabel;
-  offset: number;
-  length: number;
-  targets?: Array<SentenceTarget>;
-}
-
-export interface SentimentConfidenceScorePerLabel {
-  positive: number;
-  negative: number;
-  neutral: number;
-}
-
-export interface SentenceTarget {
-  sentiment: string;
-  confidenceScores: TargetConfidenceScorePerLabel;
-  offset: number;
-  length: number;
-  text: string;
-  relations: Array<TargetRelation>;
-}
-
-export interface TargetConfidenceScorePerLabel {
-  positive: number;
-  negative: number;
-}
-
-export interface TargetRelation {
-  relationType: string;
-  ref: string;
 }
 
 export interface DocumentError {
@@ -103,20 +67,20 @@ export interface RequestStatistics {
   transactionsCount: number;
 }
 
-export interface SentimentResult {
-  documents: Array<DocumentSentiment>;
+export interface KeyPhraseResult {
+  documents: Array<DocumentKeyPhrases>;
   errors: Array<DocumentError>;
   statistics?: RequestStatistics;
   modelVersion: string;
 }
 
-export interface analyzeResponse {
-  documents: Array<DocumentSentiment>;
+export interface identifyKeyPhrasesResponse {
+  documents: Array<DocumentKeyPhrases>;
   errors: Array<DocumentError>;
   statistics?: RequestStatistics;
   modelVersion: string;
 }
-export class SentimentClient {
+export class KeyPhrasesGeneratedClient {
   protected _pipeline: Pipeline;
   private _endpoint: string;
 
@@ -124,22 +88,18 @@ export class SentimentClient {
     this._endpoint = endpoint;
     this._pipeline = createClientPipeline(options ?? {});
   }
-  public async analyze(
+  public async identifyKeyPhrases(
     input: MultiLanguageBatchInput,
     model_version?: string,
     loggingOptOut?: boolean,
-    stringIndexType?: string,
-    opinionMining?: boolean,
     showStats?: boolean
-  ): Promise<analyzeResponse> {
+  ): Promise<identifyKeyPhrasesResponse> {
     const url = getRequestUrl({
       base: this._endpoint,
-      path: "/sentiment",
+      path: "/keyPhrases",
       queryParams: {
         "model-version": model_version,
         loggingOptOut: stringifyQueryParam(loggingOptOut),
-        stringIndexType,
-        opinionMining: stringifyQueryParam(opinionMining),
         showStats: stringifyQueryParam(showStats),
       },
     });
@@ -152,7 +112,7 @@ export class SentimentClient {
 
     const response = await makeRequest(this._pipeline, request);
     if (response.status === 200) {
-      const result = tryParseResponse(response) as SentimentResult;
+      const result = tryParseResponse(response) as KeyPhraseResult;
 
       // TODO: call onResponse
       return result;

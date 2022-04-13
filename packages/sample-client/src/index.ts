@@ -1,6 +1,6 @@
 import { KeyCredential } from "@azure/core-auth";
 import { CommonClientOptions } from "@azure-tools/cadl-ts-client";
-import { LanguagesClient } from "./generated/LanguagesClient.js";
+import { LanguagesGeneratedClient } from "./generated/LanguagesGeneratedClient.js";
 import { textAnalyticsAzureKeyCredentialPolicy } from "./textAnalyticsKeyCredentialPolicy.js";
 
 export {
@@ -16,10 +16,10 @@ export {
   RequestStatistics,
   Warning,
   detectResponse,
-  LanguagesClient,
-} from "./generated/LanguagesClient.js";
+  LanguagesGeneratedClient,
+} from "./generated/LanguagesGeneratedClient.js";
 
-export class LanguagesClientConvenience extends LanguagesClient {
+export class LanguagesClient extends LanguagesGeneratedClient {
   constructor(endpoint: string, credential: KeyCredential, options?: CommonClientOptions) {
     const apiVersion = "v3.2-preview.2";
     // "{Endpoint}/text/analytics/{ApiVersion}"

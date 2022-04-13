@@ -135,7 +135,7 @@ export interface getStatusResponse {
   "@nextLink": string;
   results: HealthcareResult;
 }
-export class HealthClient {
+export class HealthGeneratedClient {
   protected _pipeline: Pipeline;
   private _endpoint: string;
 

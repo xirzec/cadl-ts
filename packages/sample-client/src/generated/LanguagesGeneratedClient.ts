@@ -11,21 +11,21 @@ import {
   stringifyQueryParam,
 } from "@azure-tools/cadl-ts-client";
 
-export interface MultiLanguageBatchInput {
-  documents: Array<MultiLanguageInput>;
+export interface LanguageBatchInput {
+  documents: Array<LanguageInput>;
 }
 
-export interface MultiLanguageInput {
+export interface LanguageInput {
   id: string;
   text: string;
-  language?: string;
+  countryHint?: string;
 }
 
-export interface DocumentKeyPhrases {
+export interface DocumentLanguage {
   id: string;
   warnings: Array<Warning>;
   statistics: Array<DocumentStatistics>;
-  keyPhrases: string[];
+  detectedLanguage: DetectedLanguage;
 }
 
 export interface Warning {
@@ -37,6 +37,12 @@ export interface Warning {
 export interface DocumentStatistics {
   charactersCount: number;
   transactionsCount: number;
+}
+
+export interface DetectedLanguage {
+  name: string;
+  iso6391Name: string;
+  confidenceScore: number;
 }
 
 export interface DocumentError {
@@ -67,20 +73,20 @@ export interface RequestStatistics {
   transactionsCount: number;
 }
 
-export interface KeyPhraseResult {
-  documents: Array<DocumentKeyPhrases>;
+export interface LanguageResult {
+  documents: Array<DocumentLanguage>;
   errors: Array<DocumentError>;
   statistics?: RequestStatistics;
   modelVersion: string;
 }
 
-export interface identifyKeyPhrasesResponse {
-  documents: Array<DocumentKeyPhrases>;
+export interface detectResponse {
+  documents: Array<DocumentLanguage>;
   errors: Array<DocumentError>;
   statistics?: RequestStatistics;
   modelVersion: string;
 }
-export class KeyPhrasesClient {
+export class LanguagesGeneratedClient {
   protected _pipeline: Pipeline;
   private _endpoint: string;
 
@@ -88,18 +94,20 @@ export class KeyPhrasesClient {
     this._endpoint = endpoint;
     this._pipeline = createClientPipeline(options ?? {});
   }
-  public async identifyKeyPhrases(
-    input: MultiLanguageBatchInput,
+  public async detect(
+    input: LanguageBatchInput,
     model_version?: string,
     loggingOptOut?: boolean,
+    stringIndexType?: string,
     showStats?: boolean
-  ): Promise<identifyKeyPhrasesResponse> {
+  ): Promise<detectResponse> {
     const url = getRequestUrl({
       base: this._endpoint,
-      path: "/keyPhrases",
+      path: "/languages",
       queryParams: {
         "model-version": model_version,
         loggingOptOut: stringifyQueryParam(loggingOptOut),
+        stringIndexType,
         showStats: stringifyQueryParam(showStats),
       },
     });
@@ -112,7 +120,7 @@ export class KeyPhrasesClient {
 
     const response = await makeRequest(this._pipeline, request);
     if (response.status === 200) {
-      const result = tryParseResponse(response) as KeyPhraseResult;
+      const result = tryParseResponse(response) as LanguageResult;
 
       // TODO: call onResponse
       return result;

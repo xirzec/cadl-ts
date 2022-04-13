@@ -21,11 +21,13 @@ export interface MultiLanguageInput {
   language?: string;
 }
 
-export interface DocumentEntities {
+export interface DocumentSentiment {
   id: string;
   warnings: Array<Warning>;
   statistics: Array<DocumentStatistics>;
-  entities: Array<Entity>;
+  sentiment: string;
+  sentences: Array<SentenceSentiment>;
+  confidenceScores: SentimentConfidenceScorePerLabel;
 }
 
 export interface Warning {
@@ -39,13 +41,38 @@ export interface DocumentStatistics {
   transactionsCount: number;
 }
 
-export interface Entity {
+export interface SentenceSentiment {
   text: string;
-  category: string;
-  subcategory?: string;
+  sentiment: string;
+  confidenceScores: SentimentConfidenceScorePerLabel;
   offset: number;
   length: number;
-  confidenceScore: number;
+  targets?: Array<SentenceTarget>;
+}
+
+export interface SentimentConfidenceScorePerLabel {
+  positive: number;
+  negative: number;
+  neutral: number;
+}
+
+export interface SentenceTarget {
+  sentiment: string;
+  confidenceScores: TargetConfidenceScorePerLabel;
+  offset: number;
+  length: number;
+  text: string;
+  relations: Array<TargetRelation>;
+}
+
+export interface TargetConfidenceScorePerLabel {
+  positive: number;
+  negative: number;
+}
+
+export interface TargetRelation {
+  relationType: string;
+  ref: string;
 }
 
 export interface DocumentError {
@@ -76,20 +103,20 @@ export interface RequestStatistics {
   transactionsCount: number;
 }
 
-export interface EntitiesResult {
-  documents: Array<DocumentEntities>;
+export interface SentimentResult {
+  documents: Array<DocumentSentiment>;
   errors: Array<DocumentError>;
   statistics?: RequestStatistics;
   modelVersion: string;
 }
 
-export interface recognizeResponse {
-  documents: Array<DocumentEntities>;
+export interface analyzeResponse {
+  documents: Array<DocumentSentiment>;
   errors: Array<DocumentError>;
   statistics?: RequestStatistics;
   modelVersion: string;
 }
-export class EntitiesClient {
+export class SentimentGeneratedClient {
   protected _pipeline: Pipeline;
   private _endpoint: string;
 
@@ -97,20 +124,22 @@ export class EntitiesClient {
     this._endpoint = endpoint;
     this._pipeline = createClientPipeline(options ?? {});
   }
-  public async recognize(
+  public async analyze(
     input: MultiLanguageBatchInput,
     model_version?: string,
     loggingOptOut?: boolean,
     stringIndexType?: string,
+    opinionMining?: boolean,
     showStats?: boolean
-  ): Promise<recognizeResponse> {
+  ): Promise<analyzeResponse> {
     const url = getRequestUrl({
       base: this._endpoint,
-      path: "/entities/recognition/general",
+      path: "/sentiment",
       queryParams: {
         "model-version": model_version,
         loggingOptOut: stringifyQueryParam(loggingOptOut),
         stringIndexType,
+        opinionMining: stringifyQueryParam(opinionMining),
         showStats: stringifyQueryParam(showStats),
       },
     });
@@ -123,7 +152,7 @@ export class EntitiesClient {
 
     const response = await makeRequest(this._pipeline, request);
     if (response.status === 200) {
-      const result = tryParseResponse(response) as EntitiesResult;
+      const result = tryParseResponse(response) as SentimentResult;
 
       // TODO: call onResponse
       return result;

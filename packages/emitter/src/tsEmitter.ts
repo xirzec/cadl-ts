@@ -68,7 +68,7 @@ function createPackage(context: Context): Package {
     let client = clients.get(name);
     if (!client) {
       client = {
-        name: `${name}Client`,
+        name: `${name}GeneratedClient`,
         operations: [],
       };
       clients.set(name, client);

@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { AzureKeyCredential } from "@azure/core-auth";
-import { LanguagesClientConvenience } from "@azure-tools/cadl-ts-sample-client";
+import { LanguagesClient } from "@azure-tools/cadl-ts-sample-client";
 
 async function demo() {
   const endpoint = process.env["ENDPOINT"] ?? "";
@@ -21,7 +21,7 @@ async function demo() {
     ],
   };
   */
-  const client = new LanguagesClientConvenience(endpoint, new AzureKeyCredential(apiKey));
+  const client = new LanguagesClient(endpoint, new AzureKeyCredential(apiKey));
   const results = await client.detect({
     documents: [{ id: "1", text: "hello this is English!" }],
   });
