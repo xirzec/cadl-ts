@@ -4,7 +4,8 @@
 import { Program, resolvePath } from "@cadl-lang/compiler";
 import { render } from "./output/render.js";
 import { emit } from "./output/printer.js";
-import { createPackage, Context } from "./modeler/package.js";
+import { createPackage } from "./modeler/package.js";
+import { Context } from "./modeler/common.js";
 
 export interface TSEmitterOptions {
   outputPath: string;
