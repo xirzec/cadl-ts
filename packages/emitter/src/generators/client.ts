@@ -91,12 +91,13 @@ function createOperation(context: ClientContext, operation: Operation): string {
   const requestMethod = operation.verb !== "GET" ? `method: "${operation.verb}",` : "";
   const headers = getHeadersFromParameters(operation);
   const queryParams = getQueryParamsFromParameters(operation);
+  const path = getPathFromParameters(context, operation);
   const body = getBody(operation);
   const parseResponse = getParseResponse(context, operation);
   return `public async ${operation.name}(${params}): Promise<${returnType}> {
     const url = getRequestUrl({
       base: this._endpoint,
-      path: "${operation.path}",
+      path: ${path},
       queryParams: ${queryParams},
     });
     const request = createPipelineRequest({
@@ -245,6 +246,25 @@ function createParameter(context: ClientContext, parameter: Parameter): string {
   const paramType = restTypeToTypeScript(context, parameter.type);
   const name = nameToIdentifier(parameter.name);
   return `${name}${optional}: ${paramType}`;
+}
+
+function getPathFromParameters(context: ClientContext, operation: Operation): string {
+  const pathParams = operation.parameters.filter((p) => p.location === "path");
+  const pathString = `"${operation.path}"`;
+  if (pathParams.length === 0) {
+    return pathString;
+  }
+
+  context.extraClientLibImports.add("replacePathParameters");
+  const pathParamsAsObj = pathParams
+    .map((param) => {
+      const name = quoteNameIfNeeded(param.name);
+      const value = nameToIdentifier(param.name);
+      return name === value ? name : `${name}: ${value}`;
+    })
+    .join(",");
+
+  return `replacePathParameters(${pathString}, {${pathParamsAsObj}})`;
 }
 
 function getHeadersFromParameters(operation: Operation): string {
