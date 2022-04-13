@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { createPipelineRequest, Pipeline, PipelineOptions } from "@azure/core-rest-pipeline";
+import { createPipelineRequest, Pipeline } from "@azure/core-rest-pipeline";
 import {
+  CommonClientOptions,
   createClientPipeline,
   makeRequest,
   getRequestUrl,
@@ -135,10 +136,10 @@ export interface getStatusResponse {
   results: HealthcareResult;
 }
 export class HealthClient {
-  private _pipeline: Pipeline;
+  protected _pipeline: Pipeline;
   private _endpoint: string;
 
-  constructor(endpoint: string, options?: PipelineOptions) {
+  constructor(endpoint: string, options?: CommonClientOptions) {
     this._endpoint = endpoint;
     this._pipeline = createClientPipeline(options ?? {});
   }
@@ -164,7 +165,7 @@ export class HealthClient {
       method: "POST",
     });
 
-    request.body = JSON.stringify({ input });
+    request.body = JSON.stringify({ ...input });
 
     const response = await makeRequest(this._pipeline, request);
     if (response.status === 202) {

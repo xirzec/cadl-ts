@@ -43,10 +43,10 @@ export function createClient(options: CreateClientOptions): string {
 ${importText}
 ${interfaceText}
 export class ${name} {
-  private _pipeline: Pipeline;
+  protected _pipeline: Pipeline;
   private _endpoint: string;
 
-  constructor(endpoint: string, options?: PipelineOptions) {
+  constructor(endpoint: string, options?: CommonClientOptions) {
     this._endpoint = endpoint;
     this._pipeline = createClientPipeline(options ?? {});
   }
@@ -58,10 +58,10 @@ function createImports(context: ClientContext): string {
   const corePipelineImports = [
     "createPipelineRequest",
     "Pipeline",
-    "PipelineOptions",
     ...context.extraCorePipelineImports,
   ];
   const tsClientImports = [
+    "CommonClientOptions",
     "createClientPipeline",
     "makeRequest",
     "getRequestUrl",
@@ -397,14 +397,11 @@ function getBody(operation: Operation): string {
   if (!bodyParam) {
     return "";
   }
-
-  const name = quoteNameIfNeeded(bodyParam.name);
-  // TODO: destructure inputs?
   const value = nameToIdentifier(bodyParam.name);
-  const bodyDecl = name === value ? name : `${name}: ${value}`;
 
+  // TODO: destructure the body model props?
   return `
-request.body = JSON.stringify({ ${bodyDecl} });`;
+request.body = JSON.stringify({ ...${value} });`;
 }
 
 function quoteNameIfNeeded(name: string): string {

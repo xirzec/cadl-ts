@@ -1,8 +1,9 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-import { createPipelineRequest, Pipeline, PipelineOptions } from "@azure/core-rest-pipeline";
+import { createPipelineRequest, Pipeline } from "@azure/core-rest-pipeline";
 import {
+  CommonClientOptions,
   createClientPipeline,
   makeRequest,
   getRequestUrl,
@@ -90,10 +91,10 @@ export interface recognizeResponse {
   modelVersion: string;
 }
 export class PiiClient {
-  private _pipeline: Pipeline;
+  protected _pipeline: Pipeline;
   private _endpoint: string;
 
-  constructor(endpoint: string, options?: PipelineOptions) {
+  constructor(endpoint: string, options?: CommonClientOptions) {
     this._endpoint = endpoint;
     this._pipeline = createClientPipeline(options ?? {});
   }
@@ -123,7 +124,7 @@ export class PiiClient {
       method: "POST",
     });
 
-    request.body = JSON.stringify({ input });
+    request.body = JSON.stringify({ ...input });
 
     const response = await makeRequest(this._pipeline, request);
     if (response.status === 200) {

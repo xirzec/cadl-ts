@@ -7,13 +7,15 @@
   "scripts": {
     "clean": "rimraf ./dist ./cadl-output",
     "build": "tsc -p .",
-    "test": "npm run clean && npm run build",
+    "test": "ts-node --esm ./src/index.ts",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix"
   },
   "author": "Jeff Fisher <jeffish@microsoft.com>",
   "license": "MIT",
   "devDependencies": {
+    "@azure/core-auth": "^1.3.2",
+    "@azure-tools/cadl-ts-sample-client": "workspace:*",
     "@azure-tools/eslint-config-cadl-ts": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^5.12.1",
     "@typescript-eslint/parser": "^5.12.1",
@@ -21,7 +23,9 @@
     "prettier": "^2.6.1",
     "rimraf": "^3.0.2",
     "typescript": "^4.6.3",
-    "@types/node": "^12.0.0"
+    "@types/node": "^12.0.0",
+    "ts-node": "^10.7.0",
+    "dotenv": "^16.0.0"
   },
   "dependencies": {
     "tslib": "^2.3.1"

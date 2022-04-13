@@ -16,6 +16,7 @@
   "author": "Jeff Fisher <jeffish@microsoft.com>",
   "license": "MIT",
   "devDependencies": {
+    "@azure/core-auth": "^1.3.2",
     "@azure-tools/cadl-ts-emitter": "workspace:*",
     "@azure-tools/eslint-config-cadl-ts": "workspace:*",
     "@cadl-lang/compiler": "0.30.0",

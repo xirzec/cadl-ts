@@ -1,7 +1,12 @@
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT license.
 
-export { createClientPipeline, makeRequest } from "./pipeline.js";
+export {
+  createClientPipeline,
+  makeRequest,
+  AdditionalPolicyConfig,
+  CommonClientOptions,
+} from "./pipeline.js";
 export {
   UrlOptions,
   getRequestUrl,
