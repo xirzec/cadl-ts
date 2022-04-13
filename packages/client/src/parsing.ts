@@ -3,7 +3,7 @@
 
 import { PipelineResponse, RestError } from "@azure/core-rest-pipeline";
 
-export function tryParseResponse(response: PipelineResponse): any {
+export function tryParseResponse(response: PipelineResponse): unknown {
   if (!response.bodyAsText) {
     throw new RestError("Expected non-empty body from response", {
       response,
