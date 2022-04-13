@@ -1,0 +1,276 @@
+// Original swagger for reference: https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cognitiveservices/data-plane/TextAnalytics/stable/v3.1/TextAnalytics.json
+
+@serviceVersion("v3.1")
+@serviceTitle("Text Analytics")
+namespace TextAnalytics;
+
+using Cadl.Http;
+
+model ModelVersionParameter {
+  @doc("""
+    This value indicates which model will be used for scoring.
+    If a model-version is not specified, the API should default to the latest, non-preview version.
+    """)
+  @query
+  "model-version"?: string = "latest";
+}
+
+model LoggingOptOutParameter {
+  @doc("""
+    If set to true, you opt-out of having your text input logged for troubleshooting.
+
+    By default, Text Analytics logs your input text for 48 hours, solely to allow for
+    troubleshooting issues in providing you with the Text Analytics natural language
+    processing functions. Setting this parameter to true disables input logging and
+    may limit our ability to remediate issues that occur. Please see Cognitive Services
+    Compliance and Privacy notes at https://aka.ms/cs-compliance for additional details,
+    and Microsoft Responsible AI principles at https://www.microsoft.com/en-us/ai/responsible-ai.
+    """)
+  @query
+  loggingOptOut?: boolean;
+}
+
+model StringIndexTypeParameter {
+  @doc("""
+    Specifies the method used to interpret string offsets.
+    
+    Defaults to grapheme clusters according to Unicode v8.0.0.
+    For additional information see https://aka.ms/text-analytics-offsets
+    """)
+  @query
+  stringIndexType?: StringIndexType;
+}
+
+@knownValues(StringIndexTypeKV)
+model StringIndexType is string {}
+enum StringIndexTypeKV {
+  @doc("Returned offset and length values will correspond to grapheme clusters according to Unicode 8.0.0.")
+  TextElement_v8,
+
+  @doc("Returned offset and length values will correspond to Unicode code points.")
+  UnicodeCodePoint,
+
+  @doc("Returned offset and length values will correspond to UTF-16 code units.")
+  Utf16CodeUnit,
+}
+
+model JobIdParameter {
+  @doc("Job ID.")
+  @path
+  jobId: string;
+}
+
+model ShowStatsParameter {
+  @doc("If set to true, response will contain request and document level statistics.")
+  @query
+  showStats?: boolean;
+}
+
+model MultiLanguageInputParameter {
+  @doc("Collection of documents to analyze.")
+  @body
+  input: MultiLanguageBatchInput;
+}
+
+model CommonParameters {
+  ...ModelVersionParameter;
+  ...LoggingOptOutParameter;
+}
+
+model JobParameters {
+  ...JobIdParameter;
+  ...ShowStatsParameter;
+
+  @doc("""
+    Set the maximum number of results per task.
+    When both $top and $skip are specified, $skip is applied first.
+    """)
+  @query
+  $top?: int32 = 20;
+
+  @doc("""
+    Set the number of elements to offset in the response.
+    When both $top and $skip are specified, $skip is applied first.
+    """)
+  @query
+  $skip?: int32 = 0;
+}
+
+model MultiLanguageBatchInput {
+  @doc("The set of documents to process as part of this batch.")
+  documents: MultiLanguageInput[];
+}
+
+model MultiLanguageInput {
+  @doc("A unique, non-empty document identifier.")
+  id: string;
+
+  @doc("The input text to process.")
+  text: string;
+
+  @doc("""
+    This is the 2 letter ISO 639-1 representation of a language. 
+
+    For example, use "en" for English; "es" for Spanish etc. z,an
+    If not set, use "en" for English as default."
+    """)
+  language?: string;
+}
+
+model ErrorTemplate<T> {
+  @doc("Error message.")
+  message: string;
+
+  @doc("Error code.")
+  code: T;
+
+  @doc("Error details.")
+  details?: Map<string, string>;
+
+  @doc("Error target.")
+  target?: string;
+
+  @doc("Inner error contains more specific information.")
+  innererror?: InnerError;
+}
+
+model Error is ErrorTemplate<ErrorCode> {}
+model InnerError is ErrorTemplate<InnerErrorCode> {}
+
+model Warning {
+  @doc("Warning code.")
+  code: WarningCode;
+
+  @doc("Warning message.")
+  message: string;
+
+  @doc("A JSON pointer reference indicating the target object.")
+  targetRef?: string;
+}
+
+@knownValues(WarningCodeKV)
+model WarningCode is string {}
+enum WarningCodeKV {
+  LongWordsInDocument,
+  DocumentTruncated,
+}
+
+@knownValues(ErrorCodeKV)
+model ErrorCode is string {}
+enum ErrorCodeKV {
+  InvalidRequest,
+  InvalidArgument,
+  InternalServerError,
+  ServiceUnavailable,
+  NotFound,
+}
+
+@knownValues(InnerErrorCodeKV)
+model InnerErrorCode is string {}
+enum InnerErrorCodeKV {
+  InvalidParameterValue,
+  InvalidRequestBodyFormat,
+  EmptyRequest,
+  MissingInputRecords,
+  InvalidDocument,
+  ModelVersionIncorrect,
+  InvalidDocumentBatch,
+  UnsupportedLanguageCode,
+  InvalidCountryHint,
+}
+
+model DocumentInfo {
+  @doc("Unique, non-empty document identifier.")
+  id: string;
+
+  @doc("Warnings encountered while processing document.")
+  warnings: Warning[];
+
+  @doc("If showStats=true was specified in the request this field will contain information about the document payload.")
+  statistics: DocumentStatistics[];
+}
+
+model DocumentError {
+  @doc("Document id.")
+  id: string;
+
+  @doc("Document error.")
+  error: Error;
+}
+
+model DocumentStatistics {
+  @doc("Number of text elements recognized in the document.")
+  charactersCount: int32;
+
+  @doc("Number of transactions for the document.")
+  transactionsCount: int32;
+}
+
+model RequestStatistics {
+  @doc("Number of documents submitted in the request.")
+  documentsCount: int32;
+
+  @doc("Number of valid documents. This excludes empty, over-size limit or non-supported languages documents.")
+  validDocumentsCount: int32;
+
+  @doc("Number of invalid documents. This includes empty, over-size limit or non-supported languages documents.")
+  erroneousDocumentsCount: int32;
+
+  @doc("Number of transactions for the request.")
+  transactionsCount: int64;
+}
+
+@knownValues(StateKV)
+model State is string {}
+enum StateKV {
+  notStarted,
+  running,
+  succeeded,
+  failed,
+  cancelled,
+  cancelling,
+  // NOTE: There are two defintions of State x-ms-enum in official swagger:
+  // https://github.com/Azure/azure-rest-api-specs/blob/main/specification/cognitiveservices/data-plane/TextAnalytics/stable/v3.1/TextAnalytics.json
+  // but only one of them has "rejected". Assuming "rejected" is actually allowed in both places.
+  rejected,
+}
+
+model JobState {
+  createdDateTime: zonedDateTime;
+  expirationDateTime: zonedDateTime;
+  lastUpdateDateTime: zonedDateTime;
+  jobId: string;
+  status: State;
+  errors?: Error[];
+  "@nextLink": string;
+}
+
+model Result<T> {
+  @doc("Response by document.")
+  documents: T[];
+
+  @doc("Errors by document id.")
+  errors: DocumentError[];
+
+  @doc("If showStats=true was specified in the request this field will contain information about the request payload.")
+  statistics?: RequestStatistics;
+
+  @doc("This field indicates which model is used for scoring.")
+  modelVersion: string;
+}
+
+@doc("A successful call results with an Operation-Location header used to check the status of the job.")
+model LongRunningAcceptedResponse {
+  @statusCode statusCode: 202;
+  @header("Operation-Location") operationLocation: string;
+}
+
+@doc("Unexpected error.")
+@error
+model ErrorResponse {
+  @doc("Document error.")
+  error: Error;
+}
+
+alias Response<T> = OkResponse<T> | ErrorResponse;
+alias LongRunningResponse = LongRunningAcceptedResponse | ErrorResponse;

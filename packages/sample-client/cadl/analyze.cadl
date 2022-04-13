@@ -1,0 +1,87 @@
+namespace TextAnalytics;
+
+using Cadl.Http;
+
+@route("/analyze")
+interface Analyze {
+  @summary("Submit analysis job")
+  @doc("Submit a collection of text documents for analysis. Specify one or more unique tasks to be executed.")
+  @post
+  submit(
+    @doc("Collection of documents to analyze and tasks to execute.")
+    @body
+    body: AnalyzeBatchInput
+  ): LongRunningResponse;
+
+  @summary("Get analysis status and results")
+  @doc("Get the status of an analysis job.  A job may consist of one or more tasks.  Once all tasks are completed, the job will transition to the completed state and results will be available for each task.")
+  @route("/jobs")
+  getStatus(...JobParameters): Response<AnalyzeJobState>;
+}
+
+model AnalyzeBatchInput {
+  @doc("The set of documents to process as part of this batch.")
+  analysisInput: MultiLanguageBatchInput;
+
+  @doc("Optional display name for the analysis job.")
+  displayName?: string;
+
+  @doc("""
+    The set of tasks to execute on the input documents.
+    Cannot specify the same task more than once.
+    """)
+  tasks: {
+    entityRecognitionTasks?: EntitiesTask[];
+    entityRecognitionPiiTasks?: PiiTask[];
+    keyPhraseExtractionTasks?: KeyPhraseTask[];
+    entityLinkingTasks?: EntityLinkingTask[];
+    sentimentAnalysisTasks?: SentimentTask[];
+  };
+}
+
+@doc("Analysis job status and metadata.")
+model AnalyzeJobState extends JobState {
+  displayName?: string;
+  completed: int32;
+  statistics?: RequestStatistics;
+  tasks: {
+    entityLinkingTasks: EntityLinkingTaskResult[];
+    entityRecognitionPiiTasks: PiiTaskResult[];
+    entityRecognitionTasks: EntitiesTaskResult[];
+    keyPhraseExtractionTasks: KeyPhraseTaskResult[];
+    sentimentAnalysisTasks: SentimentTaskResult[];
+  };
+}
+
+model Task<T> {
+  taskName?: string;
+  parameters: {
+    // spread here to inline in spec
+    ...PlainData<T>;
+  };
+}
+
+model TaskState {
+  lastUpdateDateTime: zonedDateTime;
+  taskName: string;
+  status: State;
+}
+
+model TaskResult<T> extends TaskState {
+  results: T;
+}
+
+model EntitiesTask is Task<EntitiesParameters> {}
+model EntitiesTaskResult is TaskResult<EntitiesResult> {}
+
+model EntityLinkingTask is Task<EntityLinkingParameters> {}
+model EntityLinkingTaskResult is TaskResult<EntityLinkingResult> {}
+
+model PiiTask is Task<PiiParameters> {}
+model PiiTaskResult is TaskResult<PiiResult> {}
+
+model KeyPhraseTask is Task<KeyPhraseParameters> {}
+model KeyPhraseTaskResult is TaskResult<KeyPhraseResult> {}
+
+model SentimentTask is Task<SentimentParameters> {}
+model SentimentTaskResult is TaskResult<SentimentResult> {}

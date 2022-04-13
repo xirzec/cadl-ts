@@ -7,7 +7,9 @@
   "scripts": {
     "clean": "rimraf ./dist ./cadl-output",
     "build": "tsc -p .",
-    "test": "npm run clean && npm run build"
+    "test": "npm run clean && npm run build",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix"
   },
   "author": "Jeff Fisher <jeffish@microsoft.com>",
   "license": "MIT",

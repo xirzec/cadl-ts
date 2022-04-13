@@ -7,17 +7,24 @@
   "scripts": {
     "clean": "rimraf ./cadl-output",
     "build": "cadl compile textanalytics/main.cadl",
-    "test": "npm run clean && npm run build"
+    "test": "npm run clean && npm run build",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix"
   },
   "author": "Jeff Fisher <jeffish@microsoft.com>",
   "license": "MIT",
   "devDependencies": {
-    "@azure/core-rest-pipeline": "~1.8.0",
+    "@azure/core-rest-pipeline": "^1.8.0",
     "@azure-tools/cadl-ts-client": "workspace:*",
     "@azure-tools/cadl-ts-emitter": "workspace:*",
+    "@azure-tools/eslint-config-cadl-ts": "workspace:*",
     "@cadl-lang/compiler": "0.30.0",
     "@cadl-lang/rest": "0.13.0",
+    "@typescript-eslint/eslint-plugin": "^5.12.1",
+    "@typescript-eslint/parser": "^5.12.1",
+    "eslint": "^8.9.0",
     "rimraf": "^3.0.2",
+    "typescript": "^4.6.3",
     "@types/node": "^12.0.0"
   }
 }

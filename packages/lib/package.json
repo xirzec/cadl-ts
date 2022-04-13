@@ -1,14 +1,16 @@
 {
   "name": "@azure-tools/cadl-ts",
   "version": "0.0.1",
-  "description": "CADL Langauge Library for TS",
+  "description": "CADL Language Library for TS",
   "main": "dist/src/index.js",
   "cadlMain": "dist/src/index.js",
   "type": "module",
   "scripts": {
     "clean": "rimraf ./dist ./cadl-output",
     "build": "tsc -p .",
-    "test": "npm run clean && npm run build"
+    "test": "npm run clean && npm run build",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix"
   },
   "author": "Jeff Fisher <jeffish@microsoft.com>",
   "license": "MIT",
