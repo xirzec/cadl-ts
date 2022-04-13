@@ -10,7 +10,7 @@ import {
   ModelType,
   UnionType,
   MapType,
-} from "../model.js";
+} from "../modeler/model.js";
 export interface CreateClientOptions {
   client: Client;
 }

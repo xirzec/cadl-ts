@@ -1,6 +1,6 @@
 import { format, Options as PrettierOptions } from "prettier";
-import * as Model from "./model.js";
-import { createClient } from "./generators/client.js";
+import * as Model from "../modeler/model.js";
+import { createClient } from "../generators/client.js";
 
 export interface File {
   path: string[];

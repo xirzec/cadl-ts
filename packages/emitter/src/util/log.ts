@@ -1,5 +1,5 @@
 import { Program, NoTarget, DiagnosticTarget } from "@cadl-lang/compiler";
-import { reportDiagnostic } from "./lib.js";
+import { reportDiagnostic } from "../lib.js";
 
 export function debugLog(p: Program, message: string | undefined) {
   if (!message) {
