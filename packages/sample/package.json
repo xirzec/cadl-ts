@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "clean": "rimraf ./cadl-output",
-    "build": "cadl compile textanalytics/main.cadl",
+    "build": "cadl compile helloWorld.cadl",
     "test": "npm run clean && npm run build",
     "lint": "eslint src",
     "lint:fix": "eslint src --fix"
