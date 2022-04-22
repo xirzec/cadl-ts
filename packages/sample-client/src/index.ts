@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { KeyCredential } from "@azure/core-auth";
 import { CommonClientOptions } from "@azure-tools/cadl-ts-client";
 import { LanguagesGeneratedClient } from "./generated/LanguagesGeneratedClient.js";

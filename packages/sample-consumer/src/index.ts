@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import "dotenv/config";
 import { AzureKeyCredential } from "@azure/core-auth";
 import { LanguagesClient } from "@azure-tools/cadl-ts-sample-client";

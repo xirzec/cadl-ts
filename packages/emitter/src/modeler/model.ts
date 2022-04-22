@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 export type ParameterLocation = "body" | "header" | "query" | "path";
 export type ResponseLocation = "body" | "header";
 

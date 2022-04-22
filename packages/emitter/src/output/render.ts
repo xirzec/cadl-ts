@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { format, Options as PrettierOptions } from "prettier";
 import * as Model from "../modeler/model.js";
 import { createClient } from "../generators/client.js";

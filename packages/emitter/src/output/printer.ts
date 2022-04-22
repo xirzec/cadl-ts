@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { resolvePath, CompilerHost } from "@cadl-lang/compiler";
 import { Output } from "./render.js";
 

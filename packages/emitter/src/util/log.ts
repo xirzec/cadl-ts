@@ -1,3 +1,6 @@
+// Copyright (c) Microsoft Corporation.
+// Licensed under the MIT license.
+
 import { Program, NoTarget, DiagnosticTarget } from "@cadl-lang/compiler";
 import { reportDiagnostic } from "../lib.js";
 
