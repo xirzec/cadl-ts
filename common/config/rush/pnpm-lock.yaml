@@ -9,7 +9,7 @@ importers:
     specifiers:
       '@azure-tools/eslint-config-cadl-ts': workspace:*
       '@azure/core-rest-pipeline': ^1.8.0
-      '@types/node': ^12.0.0
+      '@types/node': ^17.0.30
       '@typescript-eslint/eslint-plugin': ^5.12.1
       '@typescript-eslint/parser': ^5.12.1
       eslint: ^8.9.0
@@ -22,7 +22,7 @@ importers:
       tslib: 2.4.0
     devDependencies:
       '@azure-tools/eslint-config-cadl-ts': link:../eslint-config
-      '@types/node': 12.20.50
+      '@types/node': 17.0.30
       '@typescript-eslint/eslint-plugin': 5.21.0_ade6595cb7be1524e723c025c098ae5d
       '@typescript-eslint/parser': 5.21.0_eslint@8.14.0+typescript@4.6.4
       eslint: 8.14.0
@@ -35,8 +35,8 @@ importers:
       '@azure-tools/eslint-config-cadl-ts': workspace:*
       '@cadl-lang/compiler': 0.30.0
       '@cadl-lang/rest': 0.13.0
-      '@types/node': ^12.0.0
-      '@types/prettier': ~2.4.4
+      '@types/node': ^17.0.30
+      '@types/prettier': ^2.6.0
       '@typescript-eslint/eslint-plugin': ^5.12.1
       '@typescript-eslint/parser': ^5.12.1
       eslint: ^8.9.0
@@ -51,8 +51,8 @@ importers:
       tslib: 2.4.0
     devDependencies:
       '@azure-tools/eslint-config-cadl-ts': link:../eslint-config
-      '@types/node': 12.20.50
-      '@types/prettier': 2.4.4
+      '@types/node': 17.0.30
+      '@types/prettier': 2.6.0
       '@typescript-eslint/eslint-plugin': 5.21.0_ade6595cb7be1524e723c025c098ae5d
       '@typescript-eslint/parser': 5.21.0_eslint@8.14.0+typescript@4.6.4
       eslint: 8.14.0
@@ -61,7 +61,7 @@ importers:
 
   ../../packages/eslint-config:
     specifiers:
-      '@types/node': ^12.0.0
+      '@types/node': ^17.0.30
       '@typescript-eslint/eslint-plugin': ^5.12.1
       '@typescript-eslint/parser': ^5.12.1
       eslint: ^8.9.0
@@ -72,13 +72,13 @@ importers:
       eslint: 8.14.0
       typescript: 4.6.4
     devDependencies:
-      '@types/node': 12.20.50
+      '@types/node': 17.0.30
 
   ../../packages/lib:
     specifiers:
       '@azure-tools/eslint-config-cadl-ts': workspace:*
       '@cadl-lang/compiler': 0.30.0
-      '@types/node': ^12.0.0
+      '@types/node': ^17.0.30
       '@typescript-eslint/eslint-plugin': ^5.12.1
       '@typescript-eslint/parser': ^5.12.1
       eslint: ^8.9.0
@@ -91,7 +91,7 @@ importers:
       tslib: 2.4.0
     devDependencies:
       '@azure-tools/eslint-config-cadl-ts': link:../eslint-config
-      '@types/node': 12.20.50
+      '@types/node': 17.0.30
       '@typescript-eslint/eslint-plugin': 5.21.0_ade6595cb7be1524e723c025c098ae5d
       '@typescript-eslint/parser': 5.21.0_eslint@8.14.0+typescript@4.6.4
       eslint: 8.14.0
@@ -107,7 +107,7 @@ importers:
       '@azure/core-rest-pipeline': ^1.8.0
       '@cadl-lang/compiler': 0.30.0
       '@cadl-lang/rest': 0.13.0
-      '@types/node': ^12.0.0
+      '@types/node': ^17.0.30
       '@typescript-eslint/eslint-plugin': ^5.12.1
       '@typescript-eslint/parser': ^5.12.1
       eslint: ^8.9.0
@@ -120,7 +120,7 @@ importers:
       '@azure/core-rest-pipeline': 1.8.0
       '@cadl-lang/compiler': 0.30.0
       '@cadl-lang/rest': 0.13.0_@cadl-lang+compiler@0.30.0
-      '@types/node': 12.20.50
+      '@types/node': 17.0.30
       '@typescript-eslint/eslint-plugin': 5.21.0_ade6595cb7be1524e723c025c098ae5d
       '@typescript-eslint/parser': 5.21.0_eslint@8.14.0+typescript@4.6.4
       eslint: 8.14.0
@@ -136,7 +136,7 @@ importers:
       '@azure/core-rest-pipeline': ^1.8.0
       '@cadl-lang/compiler': 0.30.0
       '@cadl-lang/rest': 0.13.0
-      '@types/node': ^12.0.0
+      '@types/node': ^17.0.30
       '@typescript-eslint/eslint-plugin': ^5.12.1
       '@typescript-eslint/parser': ^5.12.1
       eslint: ^8.9.0
@@ -154,7 +154,7 @@ importers:
       '@azure/core-auth': 1.3.2
       '@cadl-lang/compiler': 0.30.0
       '@cadl-lang/rest': 0.13.0_@cadl-lang+compiler@0.30.0
-      '@types/node': 12.20.50
+      '@types/node': 17.0.30
       '@typescript-eslint/eslint-plugin': 5.21.0_ade6595cb7be1524e723c025c098ae5d
       '@typescript-eslint/parser': 5.21.0_eslint@8.14.0+typescript@4.6.4
       eslint: 8.14.0
@@ -167,7 +167,7 @@ importers:
       '@azure-tools/cadl-ts-sample-client': workspace:*
       '@azure-tools/eslint-config-cadl-ts': workspace:*
       '@azure/core-auth': ^1.3.2
-      '@types/node': ^12.0.0
+      '@types/node': ^17.0.30
       '@typescript-eslint/eslint-plugin': ^5.12.1
       '@typescript-eslint/parser': ^5.12.1
       dotenv: ^16.0.0
@@ -183,14 +183,14 @@ importers:
       '@azure-tools/cadl-ts-sample-client': link:../sample-client
       '@azure-tools/eslint-config-cadl-ts': link:../eslint-config
       '@azure/core-auth': 1.3.2
-      '@types/node': 12.20.50
+      '@types/node': 17.0.30
       '@typescript-eslint/eslint-plugin': 5.21.0_ade6595cb7be1524e723c025c098ae5d
       '@typescript-eslint/parser': 5.21.0_eslint@8.14.0+typescript@4.6.4
       dotenv: 16.0.0
       eslint: 8.14.0
       prettier: 2.6.2
       rimraf: 3.0.2
-      ts-node: 10.7.0_dd933d66d5d0d75c63fcddd4ad37442c
+      ts-node: 10.7.0_706dd5b3c16966aa1e66930b7cc80c2b
       typescript: 4.6.4
 
 packages:
@@ -350,12 +350,12 @@ packages:
   /@types/json-schema/7.0.11:
     resolution: {integrity: sha512-wOuvG1SN4Us4rez+tylwwwCV1psiNVOkJeM3AUWUNWg/jDQY2+HE/444y5gc+jBmRqASOm2Oeh5c1axHobwRKQ==}
 
-  /@types/node/12.20.50:
-    resolution: {integrity: sha512-+9axpWx2b2JCVovr7Ilgt96uc6C1zBKOQMpGtRbWT9IoR/8ue32GGMfGA4woP8QyP2gBs6GQWEVM3tCybGCxDA==}
+  /@types/node/17.0.30:
+    resolution: {integrity: sha512-oNBIZjIqyHYP8VCNAV9uEytXVeXG2oR0w9lgAXro20eugRQfY002qr3CUl6BAe+Yf/z3CRjPdz27Pu6WWtuSRw==}
     dev: true
 
-  /@types/prettier/2.4.4:
-    resolution: {integrity: sha512-ReVR2rLTV1kvtlWFyuot+d1pkpG2Fw/XKE3PDAdj57rbM97ttSp9JZ2UsP+2EHTylra9cUf6JA7tGwW1INzUrA==}
+  /@types/prettier/2.6.0:
+    resolution: {integrity: sha512-G/AdOadiZhnJp0jXCaBQU449W2h716OW/EoXeYkCytxKL06X1WCXB4DZpp8TpZ8eyIJVS1cw4lrlkkSYU21cDw==}
     dev: true
 
   /@typescript-eslint/eslint-plugin/5.21.0_ade6595cb7be1524e723c025c098ae5d:
@@ -1299,7 +1299,7 @@ packages:
     dependencies:
       is-number: 7.0.0
 
-  /ts-node/10.7.0_dd933d66d5d0d75c63fcddd4ad37442c:
+  /ts-node/10.7.0_706dd5b3c16966aa1e66930b7cc80c2b:
     resolution: {integrity: sha512-TbIGS4xgJoX2i3do417KSaep1uRAW/Lu+WAL2doDHC0D6ummjirVOXU5/7aiZotbQ5p1Zp9tP7U6cYhA0O7M8A==}
     hasBin: true
     peerDependencies:
@@ -1318,7 +1318,7 @@ packages:
       '@tsconfig/node12': 1.0.9
       '@tsconfig/node14': 1.0.1
       '@tsconfig/node16': 1.0.2
-      '@types/node': 12.20.50
+      '@types/node': 17.0.30
       acorn: 8.7.1
       acorn-walk: 8.2.0
       arg: 4.1.3
