@@ -5,6 +5,7 @@ import { Operation, Parameter } from "../modeler/model.js";
 import { ClientContext } from "./cache.js";
 import { quoteNameIfNeeded } from "./identifiers.js";
 import { restTypeToTypeScript } from "./interfaces.js";
+import { nameToIdentifier } from "../util/naming.js";
 
 export function createOperationParams(context: ClientContext, operation: Operation): string {
   return operation.parameters.map((p) => createParameter(context, p)).join(", ");
@@ -96,11 +97,4 @@ export function getBody(operation: Operation): string {
   // TODO: destructure the body model props?
   return `
 request.body = JSON.stringify({ ...${value} });`;
-}
-
-function nameToIdentifier(name: string): string {
-  // TODO: change foo-bar-baz into fooBarBaz
-  // convert foo_bar_baz into fooBarBaz as well?
-  // validate first character is not number?
-  return name.replace(/[^A-Za-z0-9_$]/g, "_");
 }

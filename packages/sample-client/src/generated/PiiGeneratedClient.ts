@@ -100,7 +100,7 @@ export class PiiGeneratedClient {
   }
   public async recognize(
     input: MultiLanguageBatchInput,
-    model_version?: string,
+    modelVersion?: string,
     loggingOptOut?: boolean,
     stringIndexType?: string,
     domain?: "phi" | "none",
@@ -111,7 +111,7 @@ export class PiiGeneratedClient {
       base: this._endpoint,
       path: "/entities/recognition/pii",
       queryParams: {
-        "model-version": model_version,
+        "model-version": modelVersion,
         loggingOptOut: stringifyQueryParam(loggingOptOut),
         stringIndexType,
         domain,

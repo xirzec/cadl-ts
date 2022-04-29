@@ -96,7 +96,7 @@ export class LanguagesGeneratedClient {
   }
   public async detect(
     input: LanguageBatchInput,
-    model_version?: string,
+    modelVersion?: string,
     loggingOptOut?: boolean,
     stringIndexType?: string,
     showStats?: boolean
@@ -105,7 +105,7 @@ export class LanguagesGeneratedClient {
       base: this._endpoint,
       path: "/languages",
       queryParams: {
-        "model-version": model_version,
+        "model-version": modelVersion,
         loggingOptOut: stringifyQueryParam(loggingOptOut),
         stringIndexType,
         showStats: stringifyQueryParam(showStats),

@@ -126,7 +126,7 @@ export class SentimentGeneratedClient {
   }
   public async analyze(
     input: MultiLanguageBatchInput,
-    model_version?: string,
+    modelVersion?: string,
     loggingOptOut?: boolean,
     stringIndexType?: string,
     opinionMining?: boolean,
@@ -136,7 +136,7 @@ export class SentimentGeneratedClient {
       base: this._endpoint,
       path: "/sentiment",
       queryParams: {
-        "model-version": model_version,
+        "model-version": modelVersion,
         loggingOptOut: stringifyQueryParam(loggingOptOut),
         stringIndexType,
         opinionMining: stringifyQueryParam(opinionMining),

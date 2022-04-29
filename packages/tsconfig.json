@@ -3,7 +3,7 @@
     "composite": true,
     "lib": ["ES2019"],
     "target": "es2019",
-    "module": "ES6",
+    "module": "ESNext",
     "moduleResolution": "node",
     "declaration": true,
     "declarationMap": true,
@@ -25,5 +25,8 @@
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
     "skipLibCheck": true
+  },
+  "ts-node": {
+    "esm": true
   }
 }

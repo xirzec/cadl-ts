@@ -90,7 +90,7 @@ export class KeyPhrasesGeneratedClient {
   }
   public async identifyKeyPhrases(
     input: MultiLanguageBatchInput,
-    model_version?: string,
+    modelVersion?: string,
     loggingOptOut?: boolean,
     showStats?: boolean
   ): Promise<identifyKeyPhrasesResponse> {
@@ -98,7 +98,7 @@ export class KeyPhrasesGeneratedClient {
       base: this._endpoint,
       path: "/keyPhrases",
       queryParams: {
-        "model-version": model_version,
+        "model-version": modelVersion,
         loggingOptOut: stringifyQueryParam(loggingOptOut),
         showStats: stringifyQueryParam(showStats),
       },

@@ -99,7 +99,7 @@ export class EntitiesGeneratedClient {
   }
   public async recognize(
     input: MultiLanguageBatchInput,
-    model_version?: string,
+    modelVersion?: string,
     loggingOptOut?: boolean,
     stringIndexType?: string,
     showStats?: boolean
@@ -108,7 +108,7 @@ export class EntitiesGeneratedClient {
       base: this._endpoint,
       path: "/entities/recognition/general",
       queryParams: {
-        "model-version": model_version,
+        "model-version": modelVersion,
         loggingOptOut: stringifyQueryParam(loggingOptOut),
         stringIndexType,
         showStats: stringifyQueryParam(showStats),

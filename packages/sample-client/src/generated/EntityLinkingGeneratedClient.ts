@@ -107,7 +107,7 @@ export class EntityLinkingGeneratedClient {
   }
   public async recognize(
     input: MultiLanguageBatchInput,
-    model_version?: string,
+    modelVersion?: string,
     loggingOptOut?: boolean,
     stringIndexType?: string,
     showStats?: boolean
@@ -116,7 +116,7 @@ export class EntityLinkingGeneratedClient {
       base: this._endpoint,
       path: "/entities/linking",
       queryParams: {
-        "model-version": model_version,
+        "model-version": modelVersion,
         loggingOptOut: stringifyQueryParam(loggingOptOut),
         stringIndexType,
         showStats: stringifyQueryParam(showStats),

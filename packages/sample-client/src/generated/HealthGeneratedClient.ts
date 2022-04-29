@@ -145,7 +145,7 @@ export class HealthGeneratedClient {
   }
   public async submit(
     input: MultiLanguageBatchInput,
-    model_version?: string,
+    modelVersion?: string,
     loggingOptOut?: boolean,
     showStats?: boolean,
     stringIndexType?: string
@@ -154,7 +154,7 @@ export class HealthGeneratedClient {
       base: this._endpoint,
       path: "/entities/health/jobs",
       queryParams: {
-        "model-version": model_version,
+        "model-version": modelVersion,
         loggingOptOut: stringifyQueryParam(loggingOptOut),
         showStats: stringifyQueryParam(showStats),
         stringIndexType,
